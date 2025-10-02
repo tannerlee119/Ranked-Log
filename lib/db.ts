@@ -1,0 +1,103 @@
+import Database from 'better-sqlite3';
+import path from 'path';
+
+const dbPath = path.join(process.cwd(), 'data', 'games.db');
+
+let db: Database.Database;
+
+export function getDb() {
+  if (!db) {
+    const fs = require('fs');
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    db = new Database(dbPath);
+
+    // Create tables
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS games (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        my_adc TEXT NOT NULL,
+        my_support TEXT NOT NULL,
+        enemy_adc TEXT NOT NULL,
+        enemy_support TEXT NOT NULL,
+        kills INTEGER NOT NULL,
+        deaths INTEGER NOT NULL,
+        assists INTEGER NOT NULL,
+        kill_participation REAL NOT NULL,
+        cs_per_min REAL NOT NULL,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  }
+
+  return db;
+}
+
+export interface Game {
+  id?: number;
+  my_adc: string;
+  my_support: string;
+  enemy_adc: string;
+  enemy_support: string;
+  kills: number;
+  deaths: number;
+  assists: number;
+  kill_participation: number;
+  cs_per_min: number;
+  notes?: string;
+  created_at?: string;
+}
+
+export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
+  const db = getDb();
+  const stmt = db.prepare(`
+    INSERT INTO games (my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const result = stmt.run(
+    game.my_adc,
+    game.my_support,
+    game.enemy_adc,
+    game.enemy_support,
+    game.kills,
+    game.deaths,
+    game.assists,
+    game.kill_participation,
+    game.cs_per_min,
+    game.notes || null
+  );
+
+  return result.lastInsertRowid;
+}
+
+export function getGames(limit?: number, championFilter?: string): Game[] {
+  const db = getDb();
+  let query = 'SELECT * FROM games';
+  const params: any[] = [];
+
+  if (championFilter) {
+    query += ' WHERE my_adc = ? OR my_support = ?';
+    params.push(championFilter, championFilter);
+  }
+
+  query += ' ORDER BY created_at DESC';
+
+  if (limit) {
+    query += ' LIMIT ?';
+    params.push(limit);
+  }
+
+  const stmt = db.prepare(query);
+  return stmt.all(...params) as Game[];
+}
+
+export function getAllGames(): Game[] {
+  const db = getDb();
+  const stmt = db.prepare('SELECT * FROM games ORDER BY created_at DESC');
+  return stmt.all() as Game[];
+}
