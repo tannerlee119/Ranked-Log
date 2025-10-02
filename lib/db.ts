@@ -34,6 +34,25 @@ export function getDb() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Migrations
+    try {
+      const tableInfo = db.prepare("PRAGMA table_info(games)").all() as any[];
+
+      // Add role column if it doesn't exist
+      const hasRoleColumn = tableInfo.some((col: any) => col.name === 'role');
+      if (!hasRoleColumn) {
+        db.exec("ALTER TABLE games ADD COLUMN role TEXT NOT NULL DEFAULT 'adc'");
+      }
+
+      // Add win column if it doesn't exist
+      const hasWinColumn = tableInfo.some((col: any) => col.name === 'win');
+      if (!hasWinColumn) {
+        db.exec('ALTER TABLE games ADD COLUMN win INTEGER NOT NULL DEFAULT 0');
+      }
+    } catch (error) {
+      console.error('Migration error:', error);
+    }
   }
 
   return db;

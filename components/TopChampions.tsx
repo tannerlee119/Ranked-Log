@@ -14,6 +14,7 @@ interface Game {
   assists: number;
   kill_participation: number;
   cs_per_min: number;
+  win: number;
   notes?: string;
   created_at: string;
 }
@@ -25,6 +26,8 @@ interface TopChampionsProps {
 interface ChampionStats {
   name: string;
   games: number;
+  wins: number;
+  winRate: number;
   avgKDA: number;
   avgCS: number;
   avgKP: number;
@@ -32,7 +35,7 @@ interface ChampionStats {
 
 export default function TopChampions({ games }: TopChampionsProps) {
   // Calculate champion stats
-  const championMap = new Map<string, { games: number; totalKills: number; totalDeaths: number; totalAssists: number; totalCS: number; totalKP: number }>();
+  const championMap = new Map<string, { games: number; wins: number; totalKills: number; totalDeaths: number; totalAssists: number; totalCS: number; totalKP: number }>();
 
   games.forEach((game) => {
     const champion = game.my_adc; // For ADC role
@@ -40,6 +43,7 @@ export default function TopChampions({ games }: TopChampionsProps) {
     if (!championMap.has(champion)) {
       championMap.set(champion, {
         games: 0,
+        wins: 0,
         totalKills: 0,
         totalDeaths: 0,
         totalAssists: 0,
@@ -50,6 +54,7 @@ export default function TopChampions({ games }: TopChampionsProps) {
 
     const stats = championMap.get(champion)!;
     stats.games += 1;
+    stats.wins += game.win;
     stats.totalKills += game.kills;
     stats.totalDeaths += game.deaths;
     stats.totalAssists += game.assists;
@@ -66,6 +71,8 @@ export default function TopChampions({ games }: TopChampionsProps) {
     return {
       name,
       games: stats.games,
+      wins: stats.wins,
+      winRate: Math.round((stats.wins / stats.games) * 100),
       avgKDA: parseFloat(avgKDA.toFixed(2)),
       avgCS: parseFloat((stats.totalCS / stats.games).toFixed(1)),
       avgKP: parseFloat((stats.totalKP / stats.games).toFixed(1)),
@@ -101,7 +108,9 @@ export default function TopChampions({ games }: TopChampionsProps) {
             <ChampionIcon championName={champ.name} size={40} />
             <div className="flex-1">
               <div className="font-semibold text-white">{champ.name}</div>
-              <div className="text-sm text-gray-400">{champ.games} game{champ.games > 1 ? 's' : ''}</div>
+              <div className="text-sm text-gray-400">
+                {champ.games} game{champ.games > 1 ? 's' : ''} · <span className={champ.winRate >= 50 ? 'text-green-400' : 'text-red-400'}>{champ.winRate}% WR</span>
+              </div>
             </div>
             <div className="text-right">
               <div className="text-sm font-semibold text-blue-400">{champ.avgKDA} KDA</div>
