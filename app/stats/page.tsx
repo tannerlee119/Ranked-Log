@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { LineChart, Trophy } from 'lucide-react';
 import ChampionIcon from '@/components/ChampionIcon';
 import StatsCharts from '@/components/StatsCharts';
 import TopChampions from '@/components/TopChampions';
@@ -274,15 +275,17 @@ export default function Stats() {
             <div className="flex gap-3 mb-6">
               <button
                 onClick={() => setShowGraphs(true)}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
               >
-                📊 Performance Graphs
+                <LineChart size={18} />
+                <span>Performance Graphs</span>
               </button>
               <button
                 onClick={() => setShowTopChampions(true)}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
               >
-                🏆 Most Played
+                <Trophy size={18} />
+                <span>Most Played</span>
               </button>
             </div>
 
