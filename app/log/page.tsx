@@ -117,7 +117,7 @@ export default function LogGame() {
             {/* ADC */}
             <button
               onClick={() => setSelectedRole('adc')}
-              className="aspect-square bg-blue-600 hover:bg-blue-700 p-6 rounded-lg flex flex-col items-center justify-center transition-colors cursor-pointer"
+              className="aspect-square bg-gray-700 hover:bg-blue-600 p-6 rounded-lg flex flex-col items-center justify-center transition-colors cursor-pointer"
             >
               <Image src="/roles/adc.png" alt="ADC" width={64} height={64} className="mb-3" />
               <div className="font-semibold">ADC</div>
