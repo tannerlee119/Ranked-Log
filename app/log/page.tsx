@@ -158,7 +158,7 @@ export default function LogGame() {
               <h2 className="text-xl font-semibold mb-4 text-blue-400">My Team</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">My ADC</label>
+                  <label className="block text-sm font-medium mb-1">ADC</label>
                   <input
                     type="text"
                     name="my_adc"
@@ -166,11 +166,11 @@ export default function LogGame() {
                     onChange={handleChange}
                     required
                     className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                    placeholder="e.g., Jinx"
+                    // placeholder="e.g., Jinx"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">My Support</label>
+                  <label className="block text-sm font-medium mb-1">Support</label>
                   <input
                     type="text"
                     name="my_support"
@@ -178,7 +178,7 @@ export default function LogGame() {
                     onChange={handleChange}
                     required
                     className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                    placeholder="e.g., Thresh"
+                    // placeholder="e.g., Thresh"
                   />
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default function LogGame() {
                     onChange={handleChange}
                     required
                     className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-red-500 focus:outline-none"
-                    placeholder="e.g., Caitlyn"
+                    // placeholder="e.g., Caitlyn"
                   />
                 </div>
                 <div>
@@ -208,7 +208,7 @@ export default function LogGame() {
                     onChange={handleChange}
                     required
                     className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-red-500 focus:outline-none"
-                    placeholder="e.g., Lux"
+                    // placeholder="e.g., Lux"
                   />
                 </div>
               </div>
@@ -270,7 +270,7 @@ export default function LogGame() {
                 max="100"
                 step="0.1"
                 className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                placeholder="e.g., 65.5"
+                // placeholder="e.g., 65.5"
               />
             </div>
             <div>
@@ -284,7 +284,7 @@ export default function LogGame() {
                 min="0"
                 step="0.1"
                 className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                placeholder="e.g., 7.5"
+                // placeholder="e.g., 7.5"
               />
             </div>
           </div>

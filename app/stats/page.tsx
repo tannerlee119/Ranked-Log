@@ -36,9 +36,15 @@ export default function Stats() {
   const [championFilter, setChampionFilter] = useState<string>('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const gamesPerPage = 10;
 
   useEffect(() => {
     fetchGames();
+  }, [filter, championFilter, roleFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
   }, [filter, championFilter, roleFilter]);
 
   const fetchGames = async () => {
@@ -100,6 +106,12 @@ export default function Stats() {
   const uniqueChampions = Array.from(
     new Set(games.flatMap((g) => [g.my_adc, g.my_support]))
   ).sort();
+
+  // Pagination
+  const indexOfLastGame = currentPage * gamesPerPage;
+  const indexOfFirstGame = indexOfLastGame - gamesPerPage;
+  const currentGames = games.slice(indexOfFirstGame, indexOfLastGame);
+  const totalPages = Math.ceil(games.length / gamesPerPage);
 
   return (
     <div className="min-h-screen p-8">
@@ -277,7 +289,7 @@ export default function Stats() {
                         </td>
                       </tr>
                     ) : (
-                      games.map((game) => {
+                      currentGames.map((game) => {
                         const kda = game.deaths === 0
                           ? (game.kills + game.assists).toFixed(2)
                           : ((game.kills + game.assists) / game.deaths).toFixed(2);
@@ -319,6 +331,29 @@ export default function Stats() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination */}
+              {games.length > gamesPerPage && (
+                <div className="mt-6 flex justify-center items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Previous
+                  </button>
+                  <span className="px-4 py-2 text-gray-300">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </>
         )}
