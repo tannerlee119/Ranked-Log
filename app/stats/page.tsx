@@ -110,7 +110,7 @@ export default function Stats() {
             href="/log"
             className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
           >
-            + Log a Game
+            + Log Game
           </Link>
         </div>
 
@@ -123,12 +123,12 @@ export default function Stats() {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setRoleFilter('all')}
-                  className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center ${
+                  className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
                     roleFilter === 'all' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
                   }`}
                   title="All Roles"
                 >
-                  <span className="text-lg font-bold">All</span>
+                  <Image src="/roles/all.png" alt="All Roles" width={32} height={32} />
                 </button>
                 <button
                   onClick={() => setRoleFilter('top')}
