@@ -3,9 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+
+type Role = 'top' | 'jungle' | 'mid' | 'adc' | 'support' | null;
 
 export default function LogGame() {
   const router = useRouter();
+  const [selectedRole, setSelectedRole] = useState<Role>(null);
   const [formData, setFormData] = useState({
     my_adc: '',
     my_support: '',
@@ -63,14 +67,88 @@ export default function LogGame() {
     }
   };
 
+  // Role selection screen
+  if (!selectedRole) {
+    return (
+      <div className="min-h-screen p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Select Your Role</h1>
+            <Link href="/" className="text-blue-400 hover:text-blue-300">
+              ← Back
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-5 gap-4">
+            {/* Top Lane */}
+            <button
+              onClick={() => setSelectedRole('top')}
+              disabled
+              className="aspect-square bg-gray-700 opacity-50 cursor-not-allowed p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+            >
+              <Image src="/roles/top.png" alt="Top" width={64} height={64} className="mb-3 opacity-60" />
+              <div className="font-semibold">Top</div>
+              <div className="text-xs text-gray-500 mt-2">Coming Soon</div>
+            </button>
+
+            {/* Jungle */}
+            <button
+              onClick={() => setSelectedRole('jungle')}
+              disabled
+              className="aspect-square bg-gray-700 opacity-50 cursor-not-allowed p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+            >
+              <Image src="/roles/jungle.png" alt="Jungle" width={64} height={64} className="mb-3 opacity-60" />
+              <div className="font-semibold">Jungle</div>
+              <div className="text-xs text-gray-500 mt-2">Coming Soon</div>
+            </button>
+
+            {/* Mid Lane */}
+            <button
+              onClick={() => setSelectedRole('mid')}
+              disabled
+              className="aspect-square bg-gray-700 opacity-50 cursor-not-allowed p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+            >
+              <Image src="/roles/mid.png" alt="Mid" width={64} height={64} className="mb-3 opacity-60" />
+              <div className="font-semibold">Mid</div>
+              <div className="text-xs text-gray-500 mt-2">Coming Soon</div>
+            </button>
+
+            {/* ADC */}
+            <button
+              onClick={() => setSelectedRole('adc')}
+              className="aspect-square bg-blue-600 hover:bg-blue-700 p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+            >
+              <Image src="/roles/adc.png" alt="ADC" width={64} height={64} className="mb-3" />
+              <div className="font-semibold">ADC</div>
+            </button>
+
+            {/* Support */}
+            <button
+              onClick={() => setSelectedRole('support')}
+              disabled
+              className="aspect-square bg-gray-700 opacity-50 cursor-not-allowed p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+            >
+              <Image src="/roles/support.png" alt="Support" width={64} height={64} className="mb-3 opacity-60" />
+              <div className="font-semibold">Support</div>
+              <div className="text-xs text-gray-500 mt-2">Coming Soon</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Log a Game</h1>
-          <Link href="/" className="text-blue-400 hover:text-blue-300">
-            ← Back
-          </Link>
+          <h1 className="text-3xl font-bold">Log a Game - ADC</h1>
+          <button
+            onClick={() => setSelectedRole(null)}
+            className="text-blue-400 hover:text-blue-300"
+          >
+            ← Change Role
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg">
