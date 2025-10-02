@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
       assists: body.assists,
       kill_participation: body.kill_participation,
       cs_per_min: body.cs_per_min,
+      win: body.win,
       notes: body.notes,
     });
 
