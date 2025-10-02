@@ -19,6 +19,7 @@ export function getDb() {
     db.exec(`
       CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        role TEXT NOT NULL DEFAULT 'adc',
         my_adc TEXT NOT NULL,
         my_support TEXT NOT NULL,
         enemy_adc TEXT NOT NULL,
@@ -39,6 +40,7 @@ export function getDb() {
 
 export interface Game {
   id?: number;
+  role: string;
   my_adc: string;
   my_support: string;
   enemy_adc: string;
@@ -55,11 +57,12 @@ export interface Game {
 export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO games (my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
+    game.role,
     game.my_adc,
     game.my_support,
     game.enemy_adc,
@@ -75,14 +78,24 @@ export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   return result.lastInsertRowid;
 }
 
-export function getGames(limit?: number, championFilter?: string): Game[] {
+export function getGames(limit?: number, championFilter?: string, roleFilter?: string): Game[] {
   const db = getDb();
   let query = 'SELECT * FROM games';
   const params: any[] = [];
+  const conditions: string[] = [];
+
+  if (roleFilter && roleFilter !== 'all') {
+    conditions.push('role = ?');
+    params.push(roleFilter);
+  }
 
   if (championFilter) {
-    query += ' WHERE my_adc = ? OR my_support = ?';
+    conditions.push('(my_adc = ? OR my_support = ?)');
     params.push(championFilter, championFilter);
+  }
+
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
   }
 
   query += ' ORDER BY created_at DESC';

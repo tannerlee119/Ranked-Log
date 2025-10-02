@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 interface Game {
   id: number;
+  role: string;
   my_adc: string;
   my_support: string;
   enemy_adc: string;
@@ -32,18 +33,20 @@ export default function Stats() {
   const [games, setGames] = useState<Game[]>([]);
   const [filter, setFilter] = useState<'10' | '20' | 'all'>('10');
   const [championFilter, setChampionFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchGames();
-  }, [filter, championFilter]);
+  }, [filter, championFilter, roleFilter]);
 
   const fetchGames = async () => {
     setLoading(true);
     try {
       const limit = filter === 'all' ? '' : filter;
       const champion = championFilter || '';
-      const response = await fetch(`/api/games?limit=${limit}&champion=${champion}`);
+      const role = roleFilter || 'all';
+      const response = await fetch(`/api/games?limit=${limit}&champion=${champion}&role=${role}`);
       const data = await response.json();
 
       if (data.success) {
@@ -113,7 +116,36 @@ export default function Stats() {
         {/* Filters */}
         <div className="mb-8 bg-gray-800 p-6 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">Filters</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Role</label>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setRoleFilter('all')}
+                  className={`px-3 py-2 rounded cursor-pointer text-sm ${
+                    roleFilter === 'all' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setRoleFilter('adc')}
+                  className={`px-3 py-2 rounded cursor-pointer text-sm ${
+                    roleFilter === 'adc' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  ADC
+                </button>
+                <button
+                  onClick={() => setRoleFilter('support')}
+                  disabled
+                  className="px-3 py-2 rounded cursor-not-allowed text-sm bg-gray-700 opacity-50"
+                >
+                  Support
+                </button>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-2">Game Range</label>
               <div className="flex gap-2">

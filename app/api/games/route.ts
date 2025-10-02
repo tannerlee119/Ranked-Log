@@ -6,6 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const id = addGame({
+      role: body.role || 'adc',
       my_adc: body.my_adc,
       my_support: body.my_support,
       enemy_adc: body.enemy_adc,
@@ -30,10 +31,12 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const limit = searchParams.get('limit');
     const champion = searchParams.get('champion');
+    const role = searchParams.get('role');
 
     const games = getGames(
       limit ? parseInt(limit) : undefined,
-      champion || undefined
+      champion || undefined,
+      role || undefined
     );
 
     return NextResponse.json({ success: true, games });

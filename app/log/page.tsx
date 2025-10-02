@@ -43,6 +43,7 @@ export default function LogGame() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          role: selectedRole,
           ...formData,
           kills: parseInt(formData.kills),
           deaths: parseInt(formData.deaths),
