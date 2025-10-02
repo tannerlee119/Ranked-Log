@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ChampionIcon from '@/components/ChampionIcon';
+import StatsCharts from '@/components/StatsCharts';
+import TopChampions from '@/components/TopChampions';
+import Modal from '@/components/Modal';
 
 interface Game {
   id: number;
@@ -38,6 +41,8 @@ export default function Stats() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showGraphs, setShowGraphs] = useState(false);
+  const [showTopChampions, setShowTopChampions] = useState(false);
   const gamesPerPage = 10;
 
   useEffect(() => {
@@ -240,6 +245,7 @@ export default function Stats() {
           <div className="text-center py-8">Loading...</div>
         ) : (
           <>
+            {/* Summary Stats Cards */}
             <div className="grid md:grid-cols-4 gap-4 mb-8">
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Games Played</div>
@@ -263,6 +269,39 @@ export default function Stats() {
                 <div className="text-3xl font-bold">{stats.avgCS}</div>
               </div>
             </div>
+
+            {/* View Toggles */}
+            <div className="flex gap-3 mb-6">
+              <button
+                onClick={() => setShowGraphs(true)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
+              >
+                📊 Performance Graphs
+              </button>
+              <button
+                onClick={() => setShowTopChampions(true)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors cursor-pointer"
+              >
+                🏆 Most Played
+              </button>
+            </div>
+
+            {/* Modals */}
+            <Modal
+              isOpen={showGraphs}
+              onClose={() => setShowGraphs(false)}
+              title="Performance Graphs"
+            >
+              <StatsCharts games={games} />
+            </Modal>
+
+            <Modal
+              isOpen={showTopChampions}
+              onClose={() => setShowTopChampions(false)}
+              title="Most Played Champions"
+            >
+              <TopChampions games={games} />
+            </Modal>
 
             {/* Game History */}
             <div className="bg-gray-800 rounded-lg overflow-hidden">
