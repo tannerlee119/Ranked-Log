@@ -116,7 +116,7 @@ export default function LogGame() {
             {/* ADC */}
             <button
               onClick={() => setSelectedRole('adc')}
-              className="aspect-square bg-blue-600 hover:bg-blue-700 p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+              className="aspect-square bg-blue-600 hover:bg-blue-700 p-6 rounded-lg flex flex-col items-center justify-center transition-colors cursor-pointer"
             >
               <Image src="/roles/adc.png" alt="ADC" width={64} height={64} className="mb-3" />
               <div className="font-semibold">ADC</div>
@@ -145,7 +145,7 @@ export default function LogGame() {
           <h1 className="text-3xl font-bold">Log a Game - ADC</h1>
           <button
             onClick={() => setSelectedRole(null)}
-            className="text-blue-400 hover:text-blue-300"
+            className="text-blue-400 hover:text-blue-300 cursor-pointer"
           >
             ← Change Role
           </button>
@@ -303,7 +303,7 @@ export default function LogGame() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-6 py-3 rounded font-semibold transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer px-6 py-3 rounded font-semibold transition-colors"
           >
             {isSubmitting ? 'Saving...' : 'Save Game'}
           </button>
