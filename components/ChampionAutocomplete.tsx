@@ -160,6 +160,9 @@ export default function ChampionAutocomplete({
       } else if (filteredChampions.length > 0) {
         handleSelectChampion(filteredChampions[0]);
       }
+    } else if (e.key === 'Tab' && filteredChampions.length > 0) {
+      e.preventDefault();
+      handleSelectChampion(filteredChampions[0]);
     }
   };
 
