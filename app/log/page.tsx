@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import ChampionAutocomplete from '@/components/ChampionAutocomplete';
 
 type Role = 'top' | 'jungle' | 'mid' | 'adc' | 'support' | null;
 
@@ -157,60 +158,40 @@ export default function LogGame() {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-blue-400">My Team</h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">ADC</label>
-                  <input
-                    type="text"
-                    name="my_adc"
-                    value={formData.my_adc}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                    // placeholder="e.g., Jinx"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Support</label>
-                  <input
-                    type="text"
-                    name="my_support"
-                    value={formData.my_support}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                    // placeholder="e.g., Thresh"
-                  />
-                </div>
+                <ChampionAutocomplete
+                  label="My ADC"
+                  value={formData.my_adc}
+                  onChange={(value) => setFormData({ ...formData, my_adc: value })}
+                  placeholder="e.g., Jinx"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="My Support"
+                  value={formData.my_support}
+                  onChange={(value) => setFormData({ ...formData, my_support: value })}
+                  placeholder="e.g., Thresh"
+                  required
+                />
               </div>
             </div>
 
             <div>
               <h2 className="text-xl font-semibold mb-4 text-red-400">Enemy Team</h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Enemy ADC</label>
-                  <input
-                    type="text"
-                    name="enemy_adc"
-                    value={formData.enemy_adc}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-red-500 focus:outline-none"
-                    // placeholder="e.g., Caitlyn"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Enemy Support</label>
-                  <input
-                    type="text"
-                    name="enemy_support"
-                    value={formData.enemy_support}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-red-500 focus:outline-none"
-                    // placeholder="e.g., Lux"
-                  />
-                </div>
+                <ChampionAutocomplete
+                  label="Enemy ADC"
+                  value={formData.enemy_adc}
+                  onChange={(value) => setFormData({ ...formData, enemy_adc: value })}
+                  placeholder="e.g., Caitlyn"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Enemy Support"
+                  value={formData.enemy_support}
+                  onChange={(value) => setFormData({ ...formData, enemy_support: value })}
+                  placeholder="e.g., Lux"
+                  required
+                />
               </div>
             </div>
           </div>
