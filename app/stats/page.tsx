@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Game {
   id: number;
@@ -122,26 +123,53 @@ export default function Stats() {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setRoleFilter('all')}
-                  className={`px-3 py-2 rounded cursor-pointer text-sm ${
+                  className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center ${
                     roleFilter === 'all' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
                   }`}
+                  title="All Roles"
                 >
-                  All
+                  <span className="text-lg font-bold">All</span>
+                </button>
+                <button
+                  onClick={() => setRoleFilter('top')}
+                  disabled
+                  className="w-12 h-12 rounded cursor-not-allowed bg-gray-700 opacity-50 flex items-center justify-center p-2"
+                  title="Top (Coming Soon)"
+                >
+                  <Image src="/roles/top.png" alt="Top" width={32} height={32} className="opacity-60" />
+                </button>
+                <button
+                  onClick={() => setRoleFilter('jungle')}
+                  disabled
+                  className="w-12 h-12 rounded cursor-not-allowed bg-gray-700 opacity-50 flex items-center justify-center p-2"
+                  title="Jungle (Coming Soon)"
+                >
+                  <Image src="/roles/jungle.png" alt="Jungle" width={32} height={32} className="opacity-60" />
+                </button>
+                <button
+                  onClick={() => setRoleFilter('mid')}
+                  disabled
+                  className="w-12 h-12 rounded cursor-not-allowed bg-gray-700 opacity-50 flex items-center justify-center p-2"
+                  title="Mid (Coming Soon)"
+                >
+                  <Image src="/roles/mid.png" alt="Mid" width={32} height={32} className="opacity-60" />
                 </button>
                 <button
                   onClick={() => setRoleFilter('adc')}
-                  className={`px-3 py-2 rounded cursor-pointer text-sm ${
+                  className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
                     roleFilter === 'adc' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
                   }`}
+                  title="ADC"
                 >
-                  ADC
+                  <Image src="/roles/adc.png" alt="ADC" width={32} height={32} />
                 </button>
                 <button
                   onClick={() => setRoleFilter('support')}
                   disabled
-                  className="px-3 py-2 rounded cursor-not-allowed text-sm bg-gray-700 opacity-50"
+                  className="w-12 h-12 rounded cursor-not-allowed bg-gray-700 opacity-50 flex items-center justify-center p-2"
+                  title="Support (Coming Soon)"
                 >
-                  Support
+                  <Image src="/roles/support.png" alt="Support" width={32} height={32} className="opacity-60" />
                 </button>
               </div>
             </div>
