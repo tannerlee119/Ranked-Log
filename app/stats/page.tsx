@@ -21,12 +21,16 @@ interface Game {
   assists: number;
   kill_participation: number;
   cs_per_min: number;
+  win: number;
   notes?: string;
   created_at: string;
 }
 
 interface Stats {
   gamesPlayed: number;
+  wins: number;
+  losses: number;
+  winRate: number;
   avgKills: number;
   avgDeaths: number;
   avgAssists: number;
@@ -77,6 +81,9 @@ export default function Stats() {
     if (games.length === 0) {
       return {
         gamesPlayed: 0,
+        wins: 0,
+        losses: 0,
+        winRate: 0,
         avgKills: 0,
         avgDeaths: 0,
         avgAssists: 0,
@@ -91,6 +98,8 @@ export default function Stats() {
     const totalAssists = games.reduce((sum, g) => sum + g.assists, 0);
     const totalKP = games.reduce((sum, g) => sum + g.kill_participation, 0);
     const totalCS = games.reduce((sum, g) => sum + g.cs_per_min, 0);
+    const wins = games.reduce((sum, g) => sum + g.win, 0);
+    const losses = games.length - wins;
 
     const avgKills = totalKills / games.length;
     const avgDeaths = totalDeaths / games.length;
@@ -99,6 +108,9 @@ export default function Stats() {
 
     return {
       gamesPlayed: games.length,
+      wins,
+      losses,
+      winRate: Math.round((wins / games.length) * 100),
       avgKills: Math.round(avgKills * 10) / 10,
       avgDeaths: Math.round(avgDeaths * 10) / 10,
       avgAssists: Math.round(avgAssists * 10) / 10,
@@ -247,10 +259,17 @@ export default function Stats() {
         ) : (
           <>
             {/* Summary Stats Cards */}
-            <div className="grid md:grid-cols-4 gap-4 mb-8">
+            <div className="grid md:grid-cols-5 gap-4 mb-8">
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Games Played</div>
                 <div className="text-3xl font-bold">{stats.gamesPlayed}</div>
+              </div>
+              <div className="bg-gray-800 p-6 rounded-lg">
+                <div className="text-sm text-gray-400 mb-1">Win Rate</div>
+                <div className="text-3xl font-bold">{stats.winRate}%</div>
+                <div className="text-sm text-gray-500">
+                  {stats.wins}W - {stats.losses}L
+                </div>
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Avg KDA</div>
@@ -316,6 +335,7 @@ export default function Stats() {
                   <thead className="bg-gray-700">
                     <tr>
                       <th className="px-4 py-3 text-left">Date</th>
+                      <th className="px-4 py-3 text-left">Result</th>
                       <th className="px-4 py-3 text-left">My Duo</th>
                       <th className="px-4 py-3 text-left">Enemy Duo</th>
                       <th className="px-4 py-3 text-left">KDA</th>
@@ -327,7 +347,7 @@ export default function Stats() {
                   <tbody className="divide-y divide-gray-700">
                     {games.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                        <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                           No games logged yet. <Link href="/log" className="text-blue-400 hover:underline">Log your first game!</Link>
                         </td>
                       </tr>
@@ -341,6 +361,13 @@ export default function Stats() {
                           <tr key={game.id} className="hover:bg-gray-750">
                             <td className="px-4 py-3">
                               {new Date(game.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                game.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
+                              }`}>
+                                {game.win ? 'Win' : 'Loss'}
+                              </span>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">

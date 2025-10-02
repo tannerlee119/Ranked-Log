@@ -21,6 +21,7 @@ export default function LogGame() {
     assists: '',
     kill_participation: '',
     cs_per_min: '',
+    win: '',
     notes: '',
   });
 
@@ -51,6 +52,7 @@ export default function LogGame() {
           assists: parseInt(formData.assists),
           kill_participation: parseFloat(formData.kill_participation),
           cs_per_min: parseFloat(formData.cs_per_min),
+          win: parseInt(formData.win),
         }),
       });
 
@@ -238,7 +240,7 @@ export default function LogGame() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Kill Participation (%)</label>
               <input
@@ -267,6 +269,20 @@ export default function LogGame() {
                 className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                 // placeholder="e.g., 7.5"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Result</label>
+              <select
+                name="win"
+                value={formData.win}
+                onChange={handleChange as any}
+                required
+                className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">Select...</option>
+                <option value="1">Win</option>
+                <option value="0">Loss</option>
+              </select>
             </div>
           </div>
 

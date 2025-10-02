@@ -29,6 +29,7 @@ export function getDb() {
         assists INTEGER NOT NULL,
         kill_participation REAL NOT NULL,
         cs_per_min REAL NOT NULL,
+        win INTEGER NOT NULL DEFAULT 0,
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
@@ -50,6 +51,7 @@ export interface Game {
   assists: number;
   kill_participation: number;
   cs_per_min: number;
+  win: number;
   notes?: string;
   created_at?: string;
 }
@@ -57,8 +59,8 @@ export interface Game {
 export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
@@ -72,6 +74,7 @@ export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
     game.assists,
     game.kill_participation,
     game.cs_per_min,
+    game.win,
     game.notes || null
   );
 

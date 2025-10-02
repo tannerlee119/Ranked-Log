@@ -57,7 +57,7 @@ export default function ChampionIcon({ championName, size = 40, className = '' }
 
   const formattedName = formatChampionName(championName);
   // Using Data Dragon (Riot's official CDN) - latest version
-  const imageUrl = `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${formattedName}.png`;
+  const imageUrl = `https://ddragon.leagueoflegends.com/cdn/15.19.1/img/champion/${formattedName}.png`;
 
   if (imgError) {
     // Fallback: show first letter in a circle
