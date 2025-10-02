@@ -101,9 +101,12 @@ export default function Stats() {
     <div className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Statistics</h1>
-          <Link href="/" className="text-blue-400 hover:text-blue-300">
-            ← Back
+          <h1 className="text-3xl font-bold">Ranked Log</h1>
+          <Link
+            href="/log"
+            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            + Log a Game
           </Link>
         </div>
 
