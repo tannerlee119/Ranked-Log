@@ -43,10 +43,22 @@ export default function ChampionAutocomplete({
   const [inputValue, setInputValue] = useState(value);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredChampions, setFilteredChampions] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isChampionSelected, setIsChampionSelected] = useState(false);
+  const [showError, setShowError] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const selectedItemRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setInputValue(value);
+    // Check if value is a valid champion to show icon
+    const isValid = CHAMPIONS.some((champ) => {
+      const normalizedChamp = champ.toLowerCase().replace(/['\s]/g, '');
+      const normalizedValue = value.toLowerCase().replace(/['\s]/g, '');
+      return normalizedChamp === normalizedValue || champ.toLowerCase() === value.toLowerCase();
+    });
+    setIsChampionSelected(isValid);
   }, [value]);
 
   useEffect(() => {
@@ -54,17 +66,23 @@ export default function ChampionAutocomplete({
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
+        // Show error if field has text but no valid champion selected
+        if (inputValue && !isChampionSelected && required) {
+          setShowError(true);
+        }
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [inputValue, isChampionSelected, required]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInputValue(val);
     onChange(val);
+    setIsChampionSelected(false); // Reset when user types
+    setShowError(false); // Clear error when user types
 
     if (val.length > 0) {
       // Normalize search (remove apostrophes and special chars)
@@ -87,6 +105,7 @@ export default function ChampionAutocomplete({
 
       setFilteredChampions(filtered);
       setShowSuggestions(true);
+      setSelectedIndex(-1); // Reset selection when typing
     } else {
       setShowSuggestions(false);
     }
@@ -95,7 +114,53 @@ export default function ChampionAutocomplete({
   const handleSelectChampion = (champion: string) => {
     setInputValue(champion);
     onChange(champion);
+    setIsChampionSelected(true);
+    setShowError(false);
     setShowSuggestions(false);
+    setSelectedIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || filteredChampions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => {
+        const newIndex = prev < filteredChampions.length - 1 ? prev + 1 : prev;
+        // Scroll into view
+        setTimeout(() => {
+          if (selectedItemRef.current && dropdownRef.current) {
+            selectedItemRef.current.scrollIntoView({
+              block: 'nearest',
+              behavior: 'smooth'
+            });
+          }
+        }, 0);
+        return newIndex;
+      });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => {
+        const newIndex = prev > 0 ? prev - 1 : 0;
+        // Scroll into view
+        setTimeout(() => {
+          if (selectedItemRef.current && dropdownRef.current) {
+            selectedItemRef.current.scrollIntoView({
+              block: 'nearest',
+              behavior: 'smooth'
+            });
+          }
+        }, 0);
+        return newIndex;
+      });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0) {
+        handleSelectChampion(filteredChampions[selectedIndex]);
+      } else if (filteredChampions.length > 0) {
+        handleSelectChampion(filteredChampions[0]);
+      }
+    }
   };
 
   // Check if input value is a valid champion name (normalize apostrophes and spaces)
@@ -109,8 +174,8 @@ export default function ChampionAutocomplete({
     <div ref={wrapperRef} className="relative">
       <label className="block text-sm font-medium mb-1">{label}</label>
       <div className="relative">
-        {/* Champion Icon Preview - only show if valid champion */}
-        {inputValue && isValidChampion && (
+        {/* Champion Icon Preview - only show if champion was explicitly selected */}
+        {inputValue && isChampionSelected && (
           <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10">
             <ChampionIcon championName={inputValue} size={28} />
           </div>
@@ -121,18 +186,47 @@ export default function ChampionAutocomplete({
           type="text"
           value={inputValue}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => {
             if (inputValue.length > 0) {
-              const filtered = CHAMPIONS.filter((champ) =>
-                champ.toLowerCase().includes(inputValue.toLowerCase())
-              ).slice(0, 8);
+              const normalizedSearch = inputValue.toLowerCase().replace(/['\s]/g, '');
+              const filtered = CHAMPIONS.filter((champ) => {
+                const normalizedChamp = champ.toLowerCase().replace(/['\s]/g, '');
+                return normalizedChamp.includes(normalizedSearch);
+              }).sort((a, b) => {
+                const normalizedA = a.toLowerCase().replace(/['\s]/g, '');
+                const normalizedB = b.toLowerCase().replace(/['\s]/g, '');
+                const aStarts = normalizedA.startsWith(normalizedSearch);
+                const bStarts = normalizedB.startsWith(normalizedSearch);
+
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return a.localeCompare(b);
+              }).slice(0, 8);
               setFilteredChampions(filtered);
               setShowSuggestions(true);
             }
           }}
           required={required}
-          className={`w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none ${
-            inputValue && isValidChampion ? 'pl-12' : ''
+          onInvalid={(e) => {
+            if (!isChampionSelected) {
+              e.preventDefault();
+              setShowError(true);
+              (e.target as HTMLInputElement).setCustomValidity('Please select a valid champion from the list');
+            }
+          }}
+          onInput={(e) => {
+            (e.target as HTMLInputElement).setCustomValidity('');
+          }}
+          onBlur={() => {
+            if (inputValue && !isChampionSelected && required) {
+              setShowError(true);
+            }
+          }}
+          className={`w-full px-3 py-2 bg-gray-700 rounded border ${
+            showError ? 'border-red-500' : 'border-gray-600'
+          } focus:border-blue-500 focus:outline-none ${
+            inputValue && isChampionSelected ? 'pl-12' : ''
           }`}
           placeholder={placeholder}
           autoComplete="off"
@@ -140,19 +234,32 @@ export default function ChampionAutocomplete({
 
         {/* Suggestions Dropdown */}
         {showSuggestions && filteredChampions.length > 0 && (
-          <div className="absolute z-20 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-            {filteredChampions.map((champion) => (
+          <div
+            ref={dropdownRef}
+            className="absolute z-20 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+          >
+            {filteredChampions.map((champion, index) => (
               <button
                 key={champion}
+                ref={index === selectedIndex ? selectedItemRef : null}
                 type="button"
                 onClick={() => handleSelectChampion(champion)}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-600 transition-colors text-left cursor-pointer"
+                className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-600 transition-colors text-left cursor-pointer ${
+                  index === selectedIndex ? 'bg-gray-600' : ''
+                }`}
               >
                 <ChampionIcon championName={champion} size={32} />
                 <span className="text-white">{champion}</span>
               </button>
             ))}
           </div>
+        )}
+
+        {/* Error Message */}
+        {showError && (
+          <p className="text-red-500 text-sm mt-1">
+            Please select a valid champion from the list
+          </p>
         )}
       </div>
     </div>
