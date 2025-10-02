@@ -83,12 +83,17 @@ export default function ChampionAutocomplete({
     setShowSuggestions(false);
   };
 
+  // Check if input value is a valid champion name
+  const isValidChampion = CHAMPIONS.some(
+    (champ) => champ.toLowerCase() === inputValue.toLowerCase()
+  );
+
   return (
     <div ref={wrapperRef} className="relative">
       <label className="block text-sm font-medium mb-1">{label}</label>
       <div className="relative">
-        {/* Champion Icon Preview */}
-        {inputValue && (
+        {/* Champion Icon Preview - only show if valid champion */}
+        {inputValue && isValidChampion && (
           <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10">
             <ChampionIcon championName={inputValue} size={28} />
           </div>
@@ -110,7 +115,7 @@ export default function ChampionAutocomplete({
           }}
           required={required}
           className={`w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none ${
-            inputValue ? 'pl-12' : ''
+            inputValue && isValidChampion ? 'pl-12' : ''
           }`}
           placeholder={placeholder}
           autoComplete="off"

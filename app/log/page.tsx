@@ -159,14 +159,14 @@ export default function LogGame() {
               <h2 className="text-xl font-semibold mb-4 text-blue-400">My Team</h2>
               <div className="space-y-4">
                 <ChampionAutocomplete
-                  label="My ADC"
+                  label="ADC"
                   value={formData.my_adc}
                   onChange={(value) => setFormData({ ...formData, my_adc: value })}
                   placeholder="e.g., Jinx"
                   required
                 />
                 <ChampionAutocomplete
-                  label="My Support"
+                  label="Support"
                   value={formData.my_support}
                   onChange={(value) => setFormData({ ...formData, my_support: value })}
                   placeholder="e.g., Thresh"
