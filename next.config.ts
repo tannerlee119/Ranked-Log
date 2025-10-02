@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'static.wikia.nocookie.net',
+        pathname: '/lolesports_gamepedia_en/images/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

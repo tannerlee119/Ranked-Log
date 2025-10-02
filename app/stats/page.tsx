@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import ChampionIcon from '@/components/ChampionIcon';
 
 interface Game {
   id: number;
@@ -300,15 +301,23 @@ export default function Stats() {
                               {new Date(game.created_at).toLocaleDateString()}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="text-sm">
-                                <div className="text-blue-400">{game.my_adc}</div>
-                                <div className="text-gray-400">{game.my_support}</div>
+                              <div className="flex items-center gap-2">
+                                <ChampionIcon championName={game.my_adc} size={32} />
+                                <div className="text-sm text-blue-400">{game.my_adc}</div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <ChampionIcon championName={game.my_support} size={32} />
+                                <div className="text-sm text-gray-400">{game.my_support}</div>
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="text-sm">
-                                <div className="text-red-400">{game.enemy_adc}</div>
-                                <div className="text-gray-400">{game.enemy_support}</div>
+                              <div className="flex items-center gap-2">
+                                <ChampionIcon championName={game.enemy_adc} size={32} />
+                                <div className="text-sm text-red-400">{game.enemy_adc}</div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <ChampionIcon championName={game.enemy_support} size={32} />
+                                <div className="text-sm text-gray-400">{game.enemy_support}</div>
                               </div>
                             </td>
                             <td className="px-4 py-3">
