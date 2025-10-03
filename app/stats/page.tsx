@@ -162,14 +162,14 @@ export default function Stats() {
           <div className="flex gap-3">
             <Link
               href="/daily-log"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-700 hover:bg-purple-600 rounded-lg transition-colors"
             >
               <FileText size={18} />
               <span>Notes</span>
             </Link>
             <Link
               href="/log"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
             >
               <Plus size={18} />
               <span>Log Game</span>
