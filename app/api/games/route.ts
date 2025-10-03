@@ -34,11 +34,13 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const champion = searchParams.get('champion');
     const role = searchParams.get('role');
+    const enemyChampion = searchParams.get('enemyChampion');
 
     const games = getGames(
       limit ? parseInt(limit) : undefined,
       champion || undefined,
-      role || undefined
+      role || undefined,
+      enemyChampion || undefined
     );
 
     return NextResponse.json({ success: true, games });

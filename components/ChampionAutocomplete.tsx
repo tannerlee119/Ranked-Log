@@ -6,6 +6,7 @@ import ChampionIcon from './ChampionIcon';
 interface ChampionAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
+  onSelect?: (value: string) => void;
   label: string;
   placeholder?: string;
   required?: boolean;
@@ -36,6 +37,7 @@ const CHAMPIONS = [
 export default function ChampionAutocomplete({
   value,
   onChange,
+  onSelect,
   label,
   placeholder,
   required = false,
@@ -52,13 +54,10 @@ export default function ChampionAutocomplete({
 
   useEffect(() => {
     setInputValue(value);
-    // Check if value is a valid champion to show icon
-    const isValid = CHAMPIONS.some((champ) => {
-      const normalizedChamp = champ.toLowerCase().replace(/['\s]/g, '');
-      const normalizedValue = value.toLowerCase().replace(/['\s]/g, '');
-      return normalizedChamp === normalizedValue || champ.toLowerCase() === value.toLowerCase();
-    });
-    setIsChampionSelected(isValid);
+    // Only update selection state if value is empty (clearing) or if it's externally set
+    if (value === '') {
+      setIsChampionSelected(false);
+    }
   }, [value]);
 
   useEffect(() => {
@@ -118,6 +117,9 @@ export default function ChampionAutocomplete({
     setShowError(false);
     setShowSuggestions(false);
     setSelectedIndex(-1);
+    if (onSelect) {
+      onSelect(champion);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

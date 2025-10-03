@@ -116,7 +116,7 @@ export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   return result.lastInsertRowid;
 }
 
-export function getGames(limit?: number, championFilter?: string, roleFilter?: string): Game[] {
+export function getGames(limit?: number, championFilter?: string, roleFilter?: string, enemyChampionFilter?: string): Game[] {
   const db = getDb();
   let query = 'SELECT * FROM games';
   const params: any[] = [];
@@ -130,6 +130,11 @@ export function getGames(limit?: number, championFilter?: string, roleFilter?: s
   if (championFilter) {
     conditions.push('(my_adc = ? OR my_support = ?)');
     params.push(championFilter, championFilter);
+  }
+
+  if (enemyChampionFilter) {
+    conditions.push('(enemy_adc = ? OR enemy_support = ?)');
+    params.push(enemyChampionFilter, enemyChampionFilter);
   }
 
   if (conditions.length > 0) {

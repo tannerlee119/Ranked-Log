@@ -46,38 +46,47 @@ export default function Stats() {
   const [filter, setFilter] = useState<'10' | '20' | 'all'>('10');
   const [championFilter, setChampionFilter] = useState<string>('');
   const [championInput, setChampionInput] = useState<string>('');
+  const [enemyChampionFilter, setEnemyChampionFilter] = useState<string>('');
+  const [enemyChampionInput, setEnemyChampionInput] = useState<string>('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [showGraphs, setShowGraphs] = useState(false);
   const [showTopChampions, setShowTopChampions] = useState(false);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [editedNotes, setEditedNotes] = useState<string>('');
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
   const gamesPerPage = 10;
 
-  // Debounce champion filter updates
+  // Clear filter when input is cleared
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setChampionFilter(championInput);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    if (championInput === '') {
+      setChampionFilter('');
+    }
   }, [championInput]);
 
   useEffect(() => {
+    if (enemyChampionInput === '') {
+      setEnemyChampionFilter('');
+    }
+  }, [enemyChampionInput]);
+
+  useEffect(() => {
     fetchGames();
-  }, [filter, championFilter, roleFilter]);
+  }, [filter, championFilter, enemyChampionFilter, roleFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, championFilter, roleFilter]);
+  }, [filter, championFilter, enemyChampionFilter, roleFilter]);
 
   const fetchGames = async () => {
     setLoading(true);
     try {
       const limit = filter === 'all' ? '' : filter;
       const champion = championFilter || '';
+      const enemyChampion = enemyChampionFilter || '';
       const role = roleFilter || 'all';
-      const response = await fetch(`/api/games?limit=${limit}&champion=${champion}&role=${role}`);
+      const response = await fetch(`/api/games?limit=${limit}&champion=${champion}&enemyChampion=${enemyChampion}&role=${role}`);
       const data = await response.json();
 
       if (data.success) {
@@ -150,12 +159,20 @@ export default function Stats() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Ranked Log</h1>
-          <Link
-            href="/log"
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            + Log Game
-          </Link>
+          <div className="flex gap-3">
+            <Link
+              href="/daily-log"
+              className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              📅 Daily Log
+            </Link>
+            <Link
+              href="/log"
+              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              + Log Game
+            </Link>
+          </div>
         </div>
 
         {/* Filters */}
@@ -248,24 +265,48 @@ export default function Stats() {
               </div>
             </div>
 
-            <div>
-              <ChampionAutocomplete
-                label="Champion Filter"
-                value={championInput}
-                onChange={(value) => setChampionInput(value)}
-                placeholder="All Champions"
-              />
-              {championFilter && (
-                <button
-                  onClick={() => {
-                    setChampionInput('');
-                    setChampionFilter('');
-                  }}
-                  className="mt-2 text-sm text-blue-400 hover:text-blue-300"
-                >
-                  Clear Filter
-                </button>
-              )}
+            <div className="space-y-4">
+              <div>
+                <ChampionAutocomplete
+                  label="My Champion"
+                  value={championInput}
+                  onChange={(value) => setChampionInput(value)}
+                  onSelect={(value) => setChampionFilter(value)}
+                  placeholder="Filter by your champion"
+                />
+                {championFilter && (
+                  <button
+                    onClick={() => {
+                      setChampionInput('');
+                      setChampionFilter('');
+                    }}
+                    className="mt-2 text-sm text-blue-400 hover:text-blue-300"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <ChampionAutocomplete
+                  label="Enemy Champion"
+                  value={enemyChampionInput}
+                  onChange={(value) => setEnemyChampionInput(value)}
+                  onSelect={(value) => setEnemyChampionFilter(value)}
+                  placeholder="Filter by enemy champion"
+                />
+                {enemyChampionFilter && (
+                  <button
+                    onClick={() => {
+                      setEnemyChampionInput('');
+                      setEnemyChampionFilter('');
+                    }}
+                    className="mt-2 text-sm text-blue-400 hover:text-blue-300"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -346,7 +387,11 @@ export default function Stats() {
             {selectedGame && (
               <Modal
                 isOpen={!!selectedGame}
-                onClose={() => setSelectedGame(null)}
+                onClose={() => {
+                  setSelectedGame(null);
+                  setEditedNotes('');
+                  setIsEditingNotes(false);
+                }}
                 title="Game Details"
               >
                 <div className="space-y-6">
@@ -438,14 +483,52 @@ export default function Stats() {
                   )}
 
                   {/* Notes */}
-                  {selectedGame.notes && (
-                    <div>
-                      <div className="text-sm text-gray-400 mb-2">Notes</div>
-                      <div className="bg-gray-700 p-4 rounded whitespace-pre-wrap">
-                        {selectedGame.notes}
+                  <div>
+                    <div className="text-sm text-gray-400 mb-2">Notes</div>
+                    <textarea
+                      value={editedNotes}
+                      onChange={(e) => setEditedNotes(e.target.value)}
+                      onFocus={() => setIsEditingNotes(true)}
+                      rows={6}
+                      className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                      placeholder="Add notes about this game..."
+                    />
+                    {isEditingNotes && (
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={async () => {
+                            if (selectedGame) {
+                              try {
+                                const response = await fetch(`/api/games/${selectedGame.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ notes: editedNotes }),
+                                });
+                                if (response.ok) {
+                                  setIsEditingNotes(false);
+                                  fetchGames();
+                                }
+                              } catch (error) {
+                                console.error('Failed to update notes:', error);
+                              }
+                            }
+                          }}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditedNotes(selectedGame?.notes || '');
+                            setIsEditingNotes(false);
+                          }}
+                          className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </Modal>
             )}
@@ -486,7 +569,10 @@ export default function Stats() {
                           <tr
                             key={game.id}
                             className="hover:bg-gray-750 cursor-pointer"
-                            onClick={() => setSelectedGame(game)}
+                            onClick={() => {
+                              setSelectedGame(game);
+                              setEditedNotes(game.notes || '');
+                            }}
                           >
                             <td className="px-4 py-3">
                               {new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}

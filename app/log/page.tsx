@@ -147,7 +147,7 @@ export default function LogGame() {
     <div className="min-h-screen p-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Log a Game - ADC</h1>
+          <h1 className="text-3xl font-bold">ADC</h1>
           <button
             onClick={() => setSelectedRole(null)}
             className="text-blue-400 hover:text-blue-300 cursor-pointer"
@@ -271,19 +271,24 @@ export default function LogGame() {
                 // placeholder="e.g., 7.5"
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium mb-1">Result</label>
               <select
                 name="win"
                 value={formData.win}
                 onChange={handleChange as any}
                 required
-                className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                className="w-full px-3 py-2 pr-10 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none appearance-none cursor-pointer"
               >
                 <option value="">Select...</option>
                 <option value="1">Win</option>
                 <option value="0">Loss</option>
               </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 pt-6">
+                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
 
