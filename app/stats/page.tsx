@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LineChart, Trophy } from 'lucide-react';
+import { LineChart, Trophy, Plus, FileText } from 'lucide-react';
 import ChampionIcon from '@/components/ChampionIcon';
 import ChampionAutocomplete from '@/components/ChampionAutocomplete';
 import StatsCharts from '@/components/StatsCharts';
@@ -162,15 +162,17 @@ export default function Stats() {
           <div className="flex gap-3">
             <Link
               href="/daily-log"
-              className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
             >
-              📅 Daily Log
+              <FileText size={18} />
+              <span>Notes</span>
             </Link>
             <Link
               href="/log"
-              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
             >
-              + Log Game
+              <Plus size={18} />
+              <span>Log Game</span>
             </Link>
           </div>
         </div>
