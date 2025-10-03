@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getAllGames } from '@/lib/db';
+import { getAllGames } from '@/lib/db-turso';
 
 export async function GET() {
   try {
-    const games = getAllGames();
+    const games = await getAllGames();
 
     // Group games by day
     const gamesByDay = new Map<string, typeof games>();
 
     games.forEach((game) => {
-      const date = new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' });
+      const date = new Date(game.created_at || '').toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' });
       if (!gamesByDay.has(date)) {
         gamesByDay.set(date, []);
       }

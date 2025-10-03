@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addGame, getGames } from '@/lib/db';
+import { addGame, getGames } from '@/lib/db-turso';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const id = addGame({
+    const id = await addGame({
       role: body.role || 'adc',
       my_adc: body.my_adc,
       my_support: body.my_support,
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const role = searchParams.get('role');
     const enemyChampion = searchParams.get('enemyChampion');
 
-    const games = getGames(
+    const games = await getGames(
       limit ? parseInt(limit) : undefined,
       champion || undefined,
       role || undefined,

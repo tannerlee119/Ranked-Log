@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { updateGame } from '@/lib/db-turso';
 
 export async function PATCH(
   request: NextRequest,
@@ -11,29 +11,17 @@ export async function PATCH(
     const { id: paramId } = await params;
     const id = parseInt(paramId);
 
-    const db = getDb();
-
-    // Build dynamic SQL based on what fields are being updated
-    const updates: string[] = [];
-    const values: any[] = [];
+    const updates: { notes?: string; youtube_url?: string } = {};
 
     if (notes !== undefined) {
-      updates.push('notes = ?');
-      values.push(notes || null);
+      updates.notes = notes;
     }
 
     if (youtube_url !== undefined) {
-      updates.push('youtube_url = ?');
-      values.push(youtube_url || null);
+      updates.youtube_url = youtube_url;
     }
 
-    if (updates.length === 0) {
-      return NextResponse.json({ success: false, error: 'No fields to update' }, { status: 400 });
-    }
-
-    values.push(id);
-    const stmt = db.prepare(`UPDATE games SET ${updates.join(', ')} WHERE id = ?`);
-    stmt.run(...values);
+    await updateGame(id, updates);
 
     return NextResponse.json({ success: true });
   } catch (error) {
