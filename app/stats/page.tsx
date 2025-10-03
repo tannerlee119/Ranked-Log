@@ -56,6 +56,8 @@ export default function Stats() {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [editedNotes, setEditedNotes] = useState<string>('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [editedYoutubeUrl, setEditedYoutubeUrl] = useState<string>('');
+  const [isEditingYoutube, setIsEditingYoutube] = useState(false);
   const gamesPerPage = 10;
 
   // Clear filter when input is cleared
@@ -467,22 +469,122 @@ export default function Stats() {
                   </div>
 
                   {/* YouTube VOD */}
-                  {selectedGame.youtube_url && (
-                    <div>
-                      <div className="text-sm text-gray-400 mb-2">VOD Replay</div>
-                      <div className="aspect-video rounded-lg overflow-hidden bg-black">
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          src={selectedGame.youtube_url.replace('watch?v=', 'embed/')}
-                          title="YouTube video player"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
+                  <div>
+                    <div className="text-sm text-gray-400 mb-2">VOD Replay</div>
+                    {editedYoutubeUrl ? (
+                      <div className="space-y-2">
+                        <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                          <iframe
+                            width="100%"
+                            height="100%"
+                            src={editedYoutubeUrl.replace('watch?v=', 'embed/')}
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                        {isEditingYoutube && (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              value={editedYoutubeUrl}
+                              onChange={(e) => setEditedYoutubeUrl(e.target.value)}
+                              className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                              placeholder="YouTube URL"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={async () => {
+                                  if (selectedGame) {
+                                    try {
+                                      const response = await fetch(`/api/games/${selectedGame.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ youtube_url: editedYoutubeUrl }),
+                                      });
+                                      if (response.ok) {
+                                        setIsEditingYoutube(false);
+                                        fetchGames();
+                                      }
+                                    } catch (error) {
+                                      console.error('Failed to update YouTube URL:', error);
+                                    }
+                                  }
+                                }}
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditedYoutubeUrl(selectedGame?.youtube_url || '');
+                                  setIsEditingYoutube(false);
+                                }}
+                                className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        {!isEditingYoutube && (
+                          <button
+                            onClick={() => setIsEditingYoutube(true)}
+                            className="text-xs text-blue-400 hover:text-blue-300"
+                          >
+                            Edit URL
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div>
+                        <input
+                          type="text"
+                          value={editedYoutubeUrl}
+                          onChange={(e) => setEditedYoutubeUrl(e.target.value)}
+                          onFocus={() => setIsEditingYoutube(true)}
+                          className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                          placeholder="Add YouTube URL..."
+                        />
+                        {isEditingYoutube && (
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              onClick={async () => {
+                                if (selectedGame) {
+                                  try {
+                                    const response = await fetch(`/api/games/${selectedGame.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ youtube_url: editedYoutubeUrl }),
+                                    });
+                                    if (response.ok) {
+                                      setIsEditingYoutube(false);
+                                      fetchGames();
+                                    }
+                                  } catch (error) {
+                                    console.error('Failed to update YouTube URL:', error);
+                                  }
+                                }
+                              }}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditedYoutubeUrl(selectedGame?.youtube_url || '');
+                                setIsEditingYoutube(false);
+                              }}
+                              className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Notes */}
                   <div>
@@ -574,6 +676,7 @@ export default function Stats() {
                             onClick={() => {
                               setSelectedGame(game);
                               setEditedNotes(game.notes || '');
+                              setEditedYoutubeUrl(game.youtube_url || '');
                             }}
                           >
                             <td className="px-4 py-3">
