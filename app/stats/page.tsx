@@ -512,7 +512,7 @@ export default function Stats() {
                                     }
                                   }
                                 }}
-                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm cursor-pointer"
                               >
                                 Save
                               </button>
@@ -521,7 +521,7 @@ export default function Stats() {
                                   setEditedYoutubeUrl(selectedGame?.youtube_url || '');
                                   setIsEditingYoutube(false);
                                 }}
-                                className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+                                className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer"
                               >
                                 Cancel
                               </button>
@@ -567,7 +567,7 @@ export default function Stats() {
                                   }
                                 }
                               }}
-                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm cursor-pointer"
                             >
                               Save
                             </button>
@@ -576,7 +576,7 @@ export default function Stats() {
                                 setEditedYoutubeUrl(selectedGame?.youtube_url || '');
                                 setIsEditingYoutube(false);
                               }}
-                              className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+                              className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer"
                             >
                               Cancel
                             </button>
@@ -617,7 +617,7 @@ export default function Stats() {
                               }
                             }
                           }}
-                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm cursor-pointer"
                         >
                           Save
                         </button>
@@ -626,7 +626,7 @@ export default function Stats() {
                             setEditedNotes(selectedGame?.notes || '');
                             setIsEditingNotes(false);
                           }}
-                          className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm"
+                          className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer"
                         >
                           Cancel
                         </button>
