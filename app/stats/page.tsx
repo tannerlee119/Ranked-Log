@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LineChart, Trophy } from 'lucide-react';
 import ChampionIcon from '@/components/ChampionIcon';
+import ChampionAutocomplete from '@/components/ChampionAutocomplete';
 import StatsCharts from '@/components/StatsCharts';
 import TopChampions from '@/components/TopChampions';
 import Modal from '@/components/Modal';
@@ -44,6 +45,7 @@ export default function Stats() {
   const [games, setGames] = useState<Game[]>([]);
   const [filter, setFilter] = useState<'10' | '20' | 'all'>('10');
   const [championFilter, setChampionFilter] = useState<string>('');
+  const [championInput, setChampionInput] = useState<string>('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,6 +53,15 @@ export default function Stats() {
   const [showTopChampions, setShowTopChampions] = useState(false);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const gamesPerPage = 10;
+
+  // Debounce champion filter updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setChampionFilter(championInput);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [championInput]);
 
   useEffect(() => {
     fetchGames();
@@ -238,19 +249,23 @@ export default function Stats() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Champion Filter</label>
-              <select
-                value={championFilter}
-                onChange={(e) => setChampionFilter(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer"
-              >
-                <option value="">All Champions</option>
-                {uniqueChampions.map((champ) => (
-                  <option key={champ} value={champ}>
-                    {champ}
-                  </option>
-                ))}
-              </select>
+              <ChampionAutocomplete
+                label="Champion Filter"
+                value={championInput}
+                onChange={(value) => setChampionInput(value)}
+                placeholder="All Champions"
+              />
+              {championFilter && (
+                <button
+                  onClick={() => {
+                    setChampionInput('');
+                    setChampionFilter('');
+                  }}
+                  className="mt-2 text-sm text-blue-400 hover:text-blue-300"
+                >
+                  Clear Filter
+                </button>
+              )}
             </div>
           </div>
         </div>
