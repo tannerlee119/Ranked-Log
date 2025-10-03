@@ -31,6 +31,7 @@ export function getDb() {
         cs_per_min REAL NOT NULL,
         win INTEGER NOT NULL DEFAULT 0,
         notes TEXT,
+        youtube_url TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -49,6 +50,12 @@ export function getDb() {
       const hasWinColumn = tableInfo.some((col: any) => col.name === 'win');
       if (!hasWinColumn) {
         db.exec('ALTER TABLE games ADD COLUMN win INTEGER NOT NULL DEFAULT 0');
+      }
+
+      // Add youtube_url column if it doesn't exist
+      const hasYoutubeColumn = tableInfo.some((col: any) => col.name === 'youtube_url');
+      if (!hasYoutubeColumn) {
+        db.exec('ALTER TABLE games ADD COLUMN youtube_url TEXT');
       }
     } catch (error) {
       console.error('Migration error:', error);
@@ -72,14 +79,15 @@ export interface Game {
   cs_per_min: number;
   win: number;
   notes?: string;
+  youtube_url?: string;
   created_at?: string;
 }
 
 export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
@@ -94,7 +102,8 @@ export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
     game.kill_participation,
     game.cs_per_min,
     game.win,
-    game.notes || null
+    game.notes || null,
+    game.youtube_url || null
   );
 
   return result.lastInsertRowid;

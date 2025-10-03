@@ -23,6 +23,7 @@ export default function LogGame() {
     cs_per_min: '',
     win: '',
     notes: '',
+    youtube_url: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -284,6 +285,18 @@ export default function LogGame() {
                 <option value="0">Loss</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">YouTube VOD Link (Optional)</label>
+            <input
+              type="url"
+              name="youtube_url"
+              value={formData.youtube_url}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
           </div>
 
           <div>

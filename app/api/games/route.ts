@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       cs_per_min: body.cs_per_min,
       win: body.win,
       notes: body.notes,
+      youtube_url: body.youtube_url,
     });
 
     return NextResponse.json({ success: true, id });

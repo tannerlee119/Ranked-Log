@@ -23,6 +23,7 @@ interface Game {
   cs_per_min: number;
   win: number;
   notes?: string;
+  youtube_url?: string;
   created_at: string;
 }
 
@@ -48,6 +49,7 @@ export default function Stats() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showGraphs, setShowGraphs] = useState(false);
   const [showTopChampions, setShowTopChampions] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const gamesPerPage = 10;
 
   useEffect(() => {
@@ -325,6 +327,114 @@ export default function Stats() {
               <TopChampions games={games} />
             </Modal>
 
+            {/* Game Details Modal */}
+            {selectedGame && (
+              <Modal
+                isOpen={!!selectedGame}
+                onClose={() => setSelectedGame(null)}
+                title="Game Details"
+              >
+                <div className="space-y-6">
+                  {/* Game Info */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">Date</div>
+                      <div className="font-semibold">{new Date(selectedGame.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">Result</div>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        selectedGame.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
+                      }`}>
+                        {selectedGame.win ? 'Win' : 'Loss'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Champions */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-400 mb-2">My Team</div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <ChampionIcon championName={selectedGame.my_adc} size={40} />
+                          <div className="text-blue-400">{selectedGame.my_adc}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ChampionIcon championName={selectedGame.my_support} size={40} />
+                          <div>{selectedGame.my_support}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400 mb-2">Enemy Team</div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <ChampionIcon championName={selectedGame.enemy_adc} size={40} />
+                          <div className="text-red-400">{selectedGame.enemy_adc}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ChampionIcon championName={selectedGame.enemy_support} size={40} />
+                          <div>{selectedGame.enemy_support}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-gray-700 p-3 rounded">
+                      <div className="text-sm text-gray-400">KDA</div>
+                      <div className="text-xl font-bold">
+                        {selectedGame.deaths === 0
+                          ? (selectedGame.kills + selectedGame.assists).toFixed(2)
+                          : ((selectedGame.kills + selectedGame.assists) / selectedGame.deaths).toFixed(2)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {selectedGame.kills}/{selectedGame.deaths}/{selectedGame.assists}
+                      </div>
+                    </div>
+                    <div className="bg-gray-700 p-3 rounded">
+                      <div className="text-sm text-gray-400">Kill Participation</div>
+                      <div className="text-xl font-bold">{selectedGame.kill_participation}%</div>
+                    </div>
+                    <div className="bg-gray-700 p-3 rounded">
+                      <div className="text-sm text-gray-400">CS/min</div>
+                      <div className="text-xl font-bold">{selectedGame.cs_per_min}</div>
+                    </div>
+                  </div>
+
+                  {/* YouTube VOD */}
+                  {selectedGame.youtube_url && (
+                    <div>
+                      <div className="text-sm text-gray-400 mb-2">VOD Replay</div>
+                      <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={selectedGame.youtube_url.replace('watch?v=', 'embed/')}
+                          title="YouTube video player"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  {selectedGame.notes && (
+                    <div>
+                      <div className="text-sm text-gray-400 mb-2">Notes</div>
+                      <div className="bg-gray-700 p-4 rounded whitespace-pre-wrap">
+                        {selectedGame.notes}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Modal>
+            )}
+
             {/* Game History */}
             <div className="bg-gray-800 rounded-lg overflow-hidden">
               <div className="p-6 border-b border-gray-700">
@@ -358,7 +468,11 @@ export default function Stats() {
                           : ((game.kills + game.assists) / game.deaths).toFixed(2);
 
                         return (
-                          <tr key={game.id} className="hover:bg-gray-750">
+                          <tr
+                            key={game.id}
+                            className="hover:bg-gray-750 cursor-pointer"
+                            onClick={() => setSelectedGame(game)}
+                          >
                             <td className="px-4 py-3">
                               {new Date(game.created_at).toLocaleDateString()}
                             </td>
