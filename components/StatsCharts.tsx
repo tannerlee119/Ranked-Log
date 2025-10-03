@@ -27,7 +27,7 @@ export default function StatsCharts({ games }: StatsChartsProps) {
   const gamesByDay = new Map<string, Game[]>();
 
   games.forEach((game) => {
-    const dateKey = new Date(game.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const dateKey = new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', year: 'numeric' });
     if (!gamesByDay.has(dateKey)) {
       gamesByDay.set(dateKey, []);
     }

@@ -339,7 +339,7 @@ export default function Stats() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-sm text-gray-400 mb-1">Date</div>
-                      <div className="font-semibold">{new Date(selectedGame.created_at).toLocaleDateString()}</div>
+                      <div className="font-semibold">{new Date(selectedGame.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}</div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-400 mb-1">Result</div>
@@ -474,7 +474,7 @@ export default function Stats() {
                             onClick={() => setSelectedGame(game)}
                           >
                             <td className="px-4 py-3">
-                              {new Date(game.created_at).toLocaleDateString()}
+                              {new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}
                             </td>
                             <td className="px-4 py-3">
                               <span className={`px-2 py-1 rounded text-xs font-semibold ${

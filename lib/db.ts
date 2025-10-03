@@ -85,9 +85,15 @@ export interface Game {
 
 export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   const db = getDb();
+
+  // Get current time in PST/PDT
+  const now = new Date();
+  const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const created_at = pstTime.toISOString().replace('T', ' ').substring(0, 19);
+
   const stmt = db.prepare(`
-    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = stmt.run(
@@ -103,7 +109,8 @@ export function addGame(game: Omit<Game, 'id' | 'created_at'>) {
     game.cs_per_min,
     game.win,
     game.notes || null,
-    game.youtube_url || null
+    game.youtube_url || null,
+    created_at
   );
 
   return result.lastInsertRowid;
