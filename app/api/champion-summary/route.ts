@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { client } from '@/lib/db-turso';
 
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -13,15 +14,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No games provided' }, { status: 400 });
     }
 
-    let summary: string;
+    // Create a hash of game IDs to detect if games have changed
+    const gameIds = games.map((g: any) => g.id).sort().join(',');
 
+    // Check if we have a cached summary for this champion
+    const cachedResult = await client.execute({
+      sql: 'SELECT summary, game_ids FROM champion_summaries WHERE champion = ?',
+      args: [champion]
+    });
+
+    if (cachedResult.rows.length > 0) {
+      const cached = cachedResult.rows[0] as any;
+      // If game IDs match, return cached summary
+      if (cached.game_ids === gameIds) {
+        return NextResponse.json({ summary: cached.summary, cached: true });
+      }
+    }
+
+    // Generate new summary
+    let summary: string;
     if (openai) {
       summary = await generateChampionSummary(champion, games);
     } else {
       summary = generateSimpleChampionSummary(champion, games);
     }
 
-    return NextResponse.json({ summary });
+    // Cache the summary
+    await client.execute({
+      sql: `INSERT OR REPLACE INTO champion_summaries (champion, summary, game_ids, updated_at)
+            VALUES (?, ?, ?, datetime('now'))`,
+      args: [champion, summary, gameIds]
+    });
+
+    return NextResponse.json({ summary, cached: false });
   } catch (error) {
     console.error('Error generating champion summary:', error);
     return NextResponse.json({ error: 'Failed to generate summary' }, { status: 500 });
