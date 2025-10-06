@@ -109,7 +109,7 @@ export default function TopChampions({ games }: TopChampionsProps) {
             <div className="flex-1">
               <div className="font-semibold text-white">{champ.name}</div>
               <div className="text-sm text-gray-400">
-                {champ.games} game{champ.games > 1 ? 's' : ''} · <span className={champ.winRate >= 50 ? 'text-green-400' : 'text-red-400'}>{champ.winRate}% WR</span>
+                {champ.games} game{champ.games > 1 ? 's' : ''} · <span className={champ.winRate > 50 ? 'text-green-400' : champ.winRate === 50 ? 'text-yellow-400' : 'text-red-400'}>{champ.winRate}% WR</span>
               </div>
             </div>
             <div className="text-right">
