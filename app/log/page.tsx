@@ -77,10 +77,10 @@ export default function LogGame() {
 
       if (response.ok && data.success) {
         setSuccess(true);
-        // Wait a moment to show success message, then redirect
         setTimeout(() => {
-          router.push('/stats');
-        }, 1000);
+          setSuccess(false);
+        }, 2000);
+        router.push('/stats');
       } else {
         console.error('Save failed:', { status: response.status, data });
         setError(data.error || 'Failed to save game. Please try again.');
@@ -378,14 +378,6 @@ export default function LogGame() {
             </div>
           )}
 
-          {/* Success Message */}
-          {success && (
-            <div className="p-4 bg-green-900/50 border border-green-500 rounded-lg text-green-200">
-              <p className="font-semibold">Success!</p>
-              <p className="text-sm">Game saved successfully. Redirecting...</p>
-            </div>
-          )}
-
           <button
             type="submit"
             disabled={isSubmitting}
@@ -394,6 +386,13 @@ export default function LogGame() {
             {isSubmitting ? 'Saving...' : 'Save Game'}
           </button>
         </form>
+
+        {/* Success Toast - Bottom Right */}
+        {success && (
+          <div className="fixed bottom-6 right-6 p-4 bg-green-600 rounded-lg shadow-lg text-white animate-slide-in">
+            <p className="font-semibold">Game saved successfully</p>
+          </div>
+        )}
       </div>
     </div>
   );
