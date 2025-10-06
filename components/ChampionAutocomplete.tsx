@@ -87,11 +87,28 @@ export default function ChampionAutocomplete({
       // Normalize search (remove apostrophes and special chars)
       const normalizedSearch = val.toLowerCase().replace(/['\s]/g, '');
 
+      // Champion abbreviations
+      const abbreviations: { [key: string]: string } = {
+        'mf': 'Miss Fortune',
+        'tf': 'Twisted Fate',
+        'j4': 'Jarvan IV',
+      };
+
       const filtered = CHAMPIONS.filter((champ) => {
         const normalizedChamp = champ.toLowerCase().replace(/['\s]/g, '');
+        // Check if search matches abbreviation
+        if (abbreviations[normalizedSearch] && champ === abbreviations[normalizedSearch]) {
+          return true;
+        }
         return normalizedChamp.includes(normalizedSearch);
       }).sort((a, b) => {
-        // Prioritize champions that start with the search term
+        // Prioritize exact abbreviation matches first
+        const isAAbbrev = abbreviations[normalizedSearch] === a;
+        const isBAbbrev = abbreviations[normalizedSearch] === b;
+        if (isAAbbrev && !isBAbbrev) return -1;
+        if (!isAAbbrev && isBAbbrev) return 1;
+
+        // Then prioritize champions that start with the search term
         const normalizedA = a.toLowerCase().replace(/['\s]/g, '');
         const normalizedB = b.toLowerCase().replace(/['\s]/g, '');
         const aStarts = normalizedA.startsWith(normalizedSearch);
@@ -195,10 +212,25 @@ export default function ChampionAutocomplete({
           onFocus={() => {
             if (inputValue.length > 0) {
               const normalizedSearch = inputValue.toLowerCase().replace(/['\s]/g, '');
+
+              const abbreviations: { [key: string]: string } = {
+                'mf': 'Miss Fortune',
+                'tf': 'Twisted Fate',
+                'j4': 'Jarvan IV',
+              };
+
               const filtered = CHAMPIONS.filter((champ) => {
                 const normalizedChamp = champ.toLowerCase().replace(/['\s]/g, '');
+                if (abbreviations[normalizedSearch] && champ === abbreviations[normalizedSearch]) {
+                  return true;
+                }
                 return normalizedChamp.includes(normalizedSearch);
               }).sort((a, b) => {
+                const isAAbbrev = abbreviations[normalizedSearch] === a;
+                const isBAbbrev = abbreviations[normalizedSearch] === b;
+                if (isAAbbrev && !isBAbbrev) return -1;
+                if (!isAAbbrev && isBAbbrev) return 1;
+
                 const normalizedA = a.toLowerCase().replace(/['\s]/g, '');
                 const normalizedB = b.toLowerCase().replace(/['\s]/g, '');
                 const aStarts = normalizedA.startsWith(normalizedSearch);
