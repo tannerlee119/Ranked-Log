@@ -90,7 +90,7 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
     ]
   });
 
-  return result.lastInsertRowid;
+  return Number(result.lastInsertRowid);
 }
 
 export async function getGames(limit?: number, championFilter?: string, roleFilter?: string, enemyChampionFilter?: string, gameTypeFilter?: string): Promise<Game[]> {

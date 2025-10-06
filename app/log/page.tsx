@@ -71,7 +71,9 @@ export default function LogGame() {
         }),
       });
 
+      console.log('Response status:', response.status, response.ok);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (response.ok && data.success) {
         setSuccess(true);
@@ -80,6 +82,7 @@ export default function LogGame() {
           router.push('/stats');
         }, 1000);
       } else {
+        console.error('Save failed:', { status: response.status, data });
         setError(data.error || 'Failed to save game. Please try again.');
       }
     } catch (error) {
