@@ -25,6 +25,7 @@ interface Game {
   win: number;
   notes?: string;
   youtube_url?: string;
+  game_type?: string;
   created_at: string;
 }
 
@@ -60,6 +61,18 @@ export default function Stats() {
   const [editedYoutubeUrl, setEditedYoutubeUrl] = useState<string>('');
   const [isEditingYoutube, setIsEditingYoutube] = useState(false);
   const gamesPerPage = 10;
+
+  const getGameTypeInfo = (gameType?: string) => {
+    switch (gameType) {
+      case 'scrim':
+        return { label: 'Scrim', color: 'bg-yellow-900 text-yellow-300' };
+      case 'official_match':
+        return { label: 'Official', color: 'bg-purple-900 text-purple-300' };
+      case 'solo_queue':
+      default:
+        return { label: 'Solo Q', color: 'bg-blue-900 text-blue-300' };
+    }
+  };
 
   // Clear filter when input is cleared
   useEffect(() => {
@@ -424,7 +437,7 @@ export default function Stats() {
               >
                 <div className="space-y-6">
                   {/* Game Info */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <div className="text-sm text-gray-400 mb-1">Date</div>
                       <div className="font-semibold">{new Date(selectedGame.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}</div>
@@ -435,6 +448,12 @@ export default function Stats() {
                         selectedGame.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
                       }`}>
                         {selectedGame.win ? 'Win' : 'Loss'}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">Game Type</div>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${getGameTypeInfo(selectedGame.game_type).color}`}>
+                        {getGameTypeInfo(selectedGame.game_type).label}
                       </span>
                     </div>
                   </div>
@@ -692,6 +711,7 @@ export default function Stats() {
                         const kda = game.deaths === 0
                           ? (game.kills + game.assists).toFixed(2)
                           : ((game.kills + game.assists) / game.deaths).toFixed(2);
+                        const gameTypeInfo = getGameTypeInfo(game.game_type);
 
                         return (
                           <tr
@@ -707,11 +727,16 @@ export default function Stats() {
                               {new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}
                             </td>
                             <td className="px-4 py-3">
-                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                game.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-                              }`}>
-                                {game.win ? 'Win' : 'Loss'}
-                              </span>
+                              <div className="flex flex-col gap-1">
+                                <span className={`px-2 py-1 rounded text-xs font-semibold text-center ${
+                                  game.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
+                                }`}>
+                                  {game.win ? 'Win' : 'Loss'}
+                                </span>
+                                <span className={`px-2 py-1 rounded text-xs font-semibold text-center ${gameTypeInfo.color}`}>
+                                  {gameTypeInfo.label}
+                                </span>
+                              </div>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
