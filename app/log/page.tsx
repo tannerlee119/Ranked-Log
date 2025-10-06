@@ -37,6 +37,8 @@ export default function LogGame() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -48,6 +50,8 @@ export default function LogGame() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
 
     try {
       const response = await fetch('/api/games', {
@@ -69,14 +73,18 @@ export default function LogGame() {
 
       const data = await response.json();
 
-      if (data.success) {
-        router.push('/stats');
+      if (response.ok && data.success) {
+        setSuccess(true);
+        // Wait a moment to show success message, then redirect
+        setTimeout(() => {
+          router.push('/stats');
+        }, 1000);
       } else {
-        alert('Failed to save game');
+        setError(data.error || 'Failed to save game. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Error submitting form');
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -358,6 +366,22 @@ export default function LogGame() {
               placeholder="What did you learn? What can you improve?"
             />
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-4 bg-red-900/50 border border-red-500 rounded-lg text-red-200">
+              <p className="font-semibold">Error</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {success && (
+            <div className="p-4 bg-green-900/50 border border-green-500 rounded-lg text-green-200">
+              <p className="font-semibold">Success!</p>
+              <p className="text-sm">Game saved successfully. Redirecting...</p>
+            </div>
+          )}
 
           <button
             type="submit"
