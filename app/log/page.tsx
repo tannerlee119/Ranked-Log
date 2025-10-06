@@ -11,6 +11,14 @@ type Role = 'top' | 'jungle' | 'mid' | 'adc' | 'support' | null;
 export default function LogGame() {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<Role>(null);
+
+  // Get current date in PST and format as YYYY-MM-DD
+  const getCurrentPSTDate = () => {
+    const now = new Date();
+    const pstDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    return pstDate.toISOString().split('T')[0];
+  };
+
   const [formData, setFormData] = useState({
     my_adc: '',
     my_support: '',
@@ -24,6 +32,8 @@ export default function LogGame() {
     win: '',
     notes: '',
     youtube_url: '',
+    game_date: getCurrentPSTDate(),
+    game_type: 'solo_queue',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,6 +167,38 @@ export default function LogGame() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-6 rounded-lg">
+          {/* Game Info Section */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Game Info</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Game Date</label>
+                <input
+                  type="date"
+                  name="game_date"
+                  value={formData.game_date}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Game Type</label>
+                <select
+                  name="game_type"
+                  value={formData.game_type}
+                  onChange={handleChange as any}
+                  required
+                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="solo_queue">Solo Queue</option>
+                  <option value="scrim">Scrim</option>
+                  <option value="official_match">Official Match</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h2 className="text-xl font-semibold mb-4 text-blue-400">My Team</h2>

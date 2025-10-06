@@ -47,19 +47,27 @@ export interface Game {
   win: number;
   notes?: string;
   youtube_url?: string;
+  game_type?: string;
+  game_date?: string;
   created_at?: string;
 }
 
 export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
-  // Get current time in PST/PDT
-  const now = new Date();
-  const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-  const created_at = pstTime.toISOString().replace('T', ' ').substring(0, 19);
+  // Use provided game_date or get current time in PST/PDT
+  let created_at: string;
+  if (game.game_date) {
+    // If game_date is provided, use it with midnight PST time
+    created_at = `${game.game_date} 00:00:00`;
+  } else {
+    const now = new Date();
+    const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    created_at = pstTime.toISOString().replace('T', ' ').substring(0, 19);
+  }
 
   const result = await client.execute({
     sql: `
-      INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url, game_type, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     args: [
       game.role,
@@ -75,6 +83,7 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
       game.win,
       game.notes || null,
       game.youtube_url || null,
+      game.game_type || 'solo_queue',
       created_at
     ]
   });
@@ -82,7 +91,7 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
   return result.lastInsertRowid;
 }
 
-export async function getGames(limit?: number, championFilter?: string, roleFilter?: string, enemyChampionFilter?: string): Promise<Game[]> {
+export async function getGames(limit?: number, championFilter?: string, roleFilter?: string, enemyChampionFilter?: string, gameTypeFilter?: string): Promise<Game[]> {
   let query = 'SELECT * FROM games';
   const args: any[] = [];
   const conditions: string[] = [];
@@ -100,6 +109,11 @@ export async function getGames(limit?: number, championFilter?: string, roleFilt
   if (enemyChampionFilter) {
     conditions.push('(enemy_adc = ? OR enemy_support = ?)');
     args.push(enemyChampionFilter, enemyChampionFilter);
+  }
+
+  if (gameTypeFilter && gameTypeFilter !== 'all') {
+    conditions.push('game_type = ?');
+    args.push(gameTypeFilter);
   }
 
   if (conditions.length > 0) {

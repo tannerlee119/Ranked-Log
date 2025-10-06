@@ -49,6 +49,7 @@ export default function Stats() {
   const [enemyChampionFilter, setEnemyChampionFilter] = useState<string>('');
   const [enemyChampionInput, setEnemyChampionInput] = useState<string>('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [gameTypeFilter, setGameTypeFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [showGraphs, setShowGraphs] = useState(false);
@@ -75,11 +76,11 @@ export default function Stats() {
 
   useEffect(() => {
     fetchGames();
-  }, [filter, championFilter, enemyChampionFilter, roleFilter]);
+  }, [filter, championFilter, enemyChampionFilter, roleFilter, gameTypeFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, championFilter, enemyChampionFilter, roleFilter]);
+  }, [filter, championFilter, enemyChampionFilter, roleFilter, gameTypeFilter]);
 
   const fetchGames = async () => {
     setLoading(true);
@@ -88,7 +89,8 @@ export default function Stats() {
       const champion = championFilter || '';
       const enemyChampion = enemyChampionFilter || '';
       const role = roleFilter || 'all';
-      const response = await fetch(`/api/games?limit=${limit}&champion=${champion}&enemyChampion=${enemyChampion}&role=${role}`);
+      const gameType = gameTypeFilter || 'all';
+      const response = await fetch(`/api/games?limit=${limit}&champion=${champion}&enemyChampion=${enemyChampion}&role=${role}&gameType=${gameType}`);
       const data = await response.json();
 
       if (data.success) {
@@ -310,6 +312,20 @@ export default function Stats() {
                     Clear
                   </button>
                 )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Game Type</label>
+                <select
+                  value={gameTypeFilter}
+                  onChange={(e) => setGameTypeFilter(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Types</option>
+                  <option value="solo_queue">Solo Queue</option>
+                  <option value="scrim">Scrim</option>
+                  <option value="official_match">Official Match</option>
+                </select>
               </div>
             </div>
           </div>

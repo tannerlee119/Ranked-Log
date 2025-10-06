@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
       win: body.win,
       notes: body.notes,
       youtube_url: body.youtube_url,
+      game_type: body.game_type,
+      game_date: body.game_date,
     });
 
     return NextResponse.json({ success: true, id });
@@ -35,12 +37,14 @@ export async function GET(request: NextRequest) {
     const champion = searchParams.get('champion');
     const role = searchParams.get('role');
     const enemyChampion = searchParams.get('enemyChampion');
+    const gameType = searchParams.get('gameType');
 
     const games = await getGames(
       limit ? parseInt(limit) : undefined,
       champion || undefined,
       role || undefined,
-      enemyChampion || undefined
+      enemyChampion || undefined,
+      gameType || undefined
     );
 
     return NextResponse.json({ success: true, games });
