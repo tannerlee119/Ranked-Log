@@ -18,6 +18,7 @@ interface Game {
   win: number;
   notes?: string;
   youtube_url?: string;
+  ai_summary?: string;
   created_at: string;
 }
 
@@ -32,11 +33,13 @@ interface ChampionGroup {
   wins: number;
   losses: number;
   winRate: number;
+  championSummary: string;
 }
 
 export default function DailyLog() {
   const [championGroups, setChampionGroups] = useState<ChampionGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedChampions, setExpandedChampions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchDailyLog();
@@ -72,31 +75,29 @@ export default function DailyLog() {
         const losses = championGames.length - wins;
         const winRate = Math.round((wins / championGames.length) * 100);
 
-        // Get AI summaries for each game
-        const gamesWithSummaries = await Promise.all(
-          championGames.map(async (game) => {
-            try {
-              const summaryResponse = await fetch('/api/summarize', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ notes: game.notes }),
-              });
-              const summaryData = await summaryResponse.json();
-              return {
-                game,
-                notes: game.notes || '',
-                summary: summaryData.summary || '',
-              };
-            } catch (error) {
-              console.error('Failed to get summary for game:', error);
-              return {
-                game,
-                notes: game.notes || '',
-                summary: '',
-              };
-            }
-          })
-        );
+        // Use stored AI summaries (already in database)
+        const gamesWithSummaries = championGames.map((game) => ({
+          game,
+          notes: game.notes || '',
+          summary: game.ai_summary || '',
+        }));
+
+        // Get champion-level summary
+        let championSummary = '';
+        try {
+          const summaryResponse = await fetch('/api/champion-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              champion,
+              games: championGames
+            }),
+          });
+          const summaryData = await summaryResponse.json();
+          championSummary = summaryData.summary || '';
+        } catch (error) {
+          console.error('Failed to get champion summary:', error);
+        }
 
         processedChampions.push({
           champion,
@@ -105,6 +106,7 @@ export default function DailyLog() {
           wins,
           losses,
           winRate,
+          championSummary,
         });
       }
 
@@ -146,63 +148,96 @@ export default function DailyLog() {
           </div>
         ) : (
           <div className="space-y-6">
-            {championGroups.map((championGroup) => (
-              <div key={championGroup.champion} className="bg-gray-800 rounded-lg p-6">
-                {/* Champion Header */}
-                <div className="mb-4 pb-4 border-b border-gray-700">
-                  <h2 className="text-2xl font-bold mb-2">{championGroup.champion}</h2>
-                  <div className="flex gap-4 text-sm">
-                    <span className="text-gray-400">
-                      {championGroup.totalGames} {championGroup.totalGames === 1 ? 'game' : 'games'} with notes
-                    </span>
-                    <span className="text-green-400">{championGroup.wins}W</span>
-                    <span className="text-red-400">{championGroup.losses}L</span>
-                    <span className="text-blue-400">{championGroup.winRate}% WR</span>
+            {championGroups.map((championGroup) => {
+              const isExpanded = expandedChampions.has(championGroup.champion);
+
+              return (
+                <div key={championGroup.champion} className="bg-gray-800 rounded-lg p-6">
+                  {/* Champion Header */}
+                  <div
+                    className="mb-4 pb-4 border-b border-gray-700 cursor-pointer"
+                    onClick={() => {
+                      setExpandedChampions(prev => {
+                        const next = new Set(prev);
+                        if (next.has(championGroup.champion)) {
+                          next.delete(championGroup.champion);
+                        } else {
+                          next.add(championGroup.champion);
+                        }
+                        return next;
+                      });
+                    }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-2xl font-bold">{championGroup.champion}</h2>
+                      <button className="text-gray-400 hover:text-gray-200">
+                        {isExpanded ? '▼' : '▶'}
+                      </button>
+                    </div>
+                    <div className="flex gap-4 text-sm mt-2">
+                      <span className="text-gray-400">
+                        {championGroup.totalGames} {championGroup.totalGames === 1 ? 'game' : 'games'} with notes
+                      </span>
+                      <span className="text-green-400">{championGroup.wins}W</span>
+                      <span className="text-red-400">{championGroup.losses}L</span>
+                      <span className="text-blue-400">{championGroup.winRate}% WR</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Game Notes with AI Summaries */}
-                <div className="space-y-4">
-                  {championGroup.games.map((item) => {
-                    const game = item.game;
-                    const date = new Date(game.created_at).toLocaleDateString('en-US', {
-                      timeZone: 'America/Los_Angeles',
-                      weekday: 'short',
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    });
+                  {/* Champion Summary (Always Visible) */}
+                  {championGroup.championSummary && (
+                    <div className="mb-4 p-4 bg-purple-900/30 rounded-lg border border-purple-700/50">
+                      <h3 className="text-lg font-semibold mb-2 text-purple-300">📊 Overall Performance Summary</h3>
+                      <p className="text-gray-300 whitespace-pre-line">{championGroup.championSummary}</p>
+                    </div>
+                  )}
 
-                    return (
-                      <div key={game.id} className="p-4 bg-gray-700/50 rounded-lg">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="text-sm text-gray-400">
-                            {date} • vs {game.enemy_adc} + {game.enemy_support} •
-                            <span className={game.win ? 'text-green-400 ml-2' : 'text-red-400 ml-2'}>
-                              {game.win ? 'Win' : 'Loss'}
-                            </span>
+                  {/* Game Notes with AI Summaries (Expandable) */}
+                  {isExpanded && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-300 mt-4">Individual Game Notes</h3>
+                      {championGroup.games.map((item) => {
+                        const game = item.game;
+                        const date = new Date(game.created_at).toLocaleDateString('en-US', {
+                          timeZone: 'America/Los_Angeles',
+                          weekday: 'short',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        });
+
+                        return (
+                          <div key={game.id} className="p-4 bg-gray-700/50 rounded-lg">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="text-sm text-gray-400">
+                                {date} • vs {game.enemy_adc} + {game.enemy_support} •
+                                <span className={game.win ? 'text-green-400 ml-2' : 'text-red-400 ml-2'}>
+                                  {game.win ? 'Win' : 'Loss'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Original Notes */}
+                            <div className="mb-3">
+                              <div className="text-xs text-gray-500 mb-1">Notes:</div>
+                              <p className="text-gray-300 whitespace-pre-line text-sm">{item.notes}</p>
+                            </div>
+
+                            {/* AI Summary */}
+                            {item.summary && (
+                              <div className="p-3 bg-blue-900/30 rounded border border-blue-700/50">
+                                <div className="text-xs text-blue-300 mb-1">✨ AI Summary:</div>
+                                <p className="text-gray-300 whitespace-pre-line text-sm">{item.summary}</p>
+                              </div>
+                            )}
                           </div>
-                        </div>
-
-                        {/* Original Notes */}
-                        <div className="mb-3">
-                          <div className="text-xs text-gray-500 mb-1">Notes:</div>
-                          <p className="text-gray-300 whitespace-pre-line text-sm">{item.notes}</p>
-                        </div>
-
-                        {/* AI Summary */}
-                        {item.summary && (
-                          <div className="p-3 bg-blue-900/30 rounded border border-blue-700/50">
-                            <div className="text-xs text-blue-300 mb-1">✨ AI Summary:</div>
-                            <p className="text-gray-300 whitespace-pre-line text-sm">{item.summary}</p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

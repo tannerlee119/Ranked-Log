@@ -49,6 +49,7 @@ export interface Game {
   youtube_url?: string;
   game_type?: string;
   game_date?: string;
+  ai_summary?: string;
   created_at?: string;
 }
 
@@ -66,8 +67,8 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
 
   const result = await client.execute({
     sql: `
-      INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url, game_type, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url, game_type, ai_summary, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     args: [
       game.role,
@@ -84,6 +85,7 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
       game.notes || null,
       game.youtube_url || null,
       game.game_type || 'solo_queue',
+      game.ai_summary || null,
       created_at
     ]
   });

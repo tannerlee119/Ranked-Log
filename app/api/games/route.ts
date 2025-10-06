@@ -5,6 +5,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // Generate AI summary if notes are provided
+    let aiSummary = undefined;
+    if (body.notes) {
+      try {
+        const summaryResponse = await fetch(`${request.nextUrl.origin}/api/summarize`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: body.notes }),
+        });
+        const summaryData = await summaryResponse.json();
+        aiSummary = summaryData.summary;
+      } catch (error) {
+        console.error('Failed to generate AI summary:', error);
+        // Continue without summary
+      }
+    }
+
     const id = await addGame({
       role: body.role || 'adc',
       my_adc: body.my_adc,
@@ -21,6 +38,7 @@ export async function POST(request: NextRequest) {
       youtube_url: body.youtube_url,
       game_type: body.game_type,
       game_date: body.game_date,
+      ai_summary: aiSummary,
     });
 
     return NextResponse.json({ success: true, id });

@@ -36,11 +36,12 @@ async function generateOpenAISummary(notes: string): Promise<string> {
       messages: [
         {
           role: 'system',
-          content: `You are a League of Legends coach analyzing game notes. Provide a concise summary highlighting:
+          content: `You are a League of Legends coach analyzing game notes. Provide a concise summary in plain text (no markdown formatting) highlighting:
 - Key strengths and good plays
 - Areas for improvement or mistakes
 - Specific action items to work on
-Keep the summary brief (3-5 bullet points) and actionable.`
+
+Format as simple bullet points using dashes, not asterisks or bold text. Keep it brief (3-5 bullet points) and actionable.`
         },
         {
           role: 'user',
