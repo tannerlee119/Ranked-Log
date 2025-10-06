@@ -286,11 +286,11 @@ export default function Stats() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Game Type</label>
+                <label className="block text-sm font-medium mb-1">Game Type</label>
                 <select
                   value={gameTypeFilter}
                   onChange={(e) => setGameTypeFilter(e.target.value)}
-                  className="w-full px-3 py-2 pr-10 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
+                  className="w-full h-[42px] px-3 py-2 pr-10 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
                     backgroundPosition: 'right 0.75rem center',
