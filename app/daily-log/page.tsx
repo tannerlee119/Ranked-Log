@@ -21,18 +21,21 @@ interface Game {
   created_at: string;
 }
 
-interface DayGroup {
-  date: string;
-  games: Game[];
+interface ChampionGroup {
+  champion: string;
+  games: Array<{
+    game: Game;
+    notes: string;
+    summary: string;
+  }>;
+  totalGames: number;
   wins: number;
   losses: number;
   winRate: number;
-  notesWithSummaries: Array<{ gameId: number; notes: string; summary: string }>;
-  daySummary: string;
 }
 
 export default function DailyLog() {
-  const [dayGroups, setDayGroups] = useState<DayGroup[]>([]);
+  const [championGroups, setChampionGroups] = useState<ChampionGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,92 +46,76 @@ export default function DailyLog() {
     try {
       // Fetch all games
       const gamesResponse = await fetch('/api/games');
-      const games: Game[] = await gamesResponse.json();
+      const data = await gamesResponse.json();
+      const games: Game[] = data.games || data;
 
-      // Group games by day (PST timezone)
-      const gamesByDay = new Map<string, Game[]>();
-      games.forEach((game) => {
-        const date = new Date(game.created_at).toLocaleDateString('en-US', {
-          timeZone: 'America/Los_Angeles',
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        if (!gamesByDay.has(date)) {
-          gamesByDay.set(date, []);
+      // Filter games with notes only
+      const gamesWithNotes = games.filter(game => game.notes);
+
+      // Group games by champion (my_adc or my_support)
+      const gamesByChampion = new Map<string, Game[]>();
+      gamesWithNotes.forEach((game) => {
+        const champion = game.my_adc || game.my_support;
+        if (!gamesByChampion.has(champion)) {
+          gamesByChampion.set(champion, []);
         }
-        gamesByDay.get(date)!.push(game);
+        gamesByChampion.get(champion)!.push(game);
       });
 
-      // Process each day
-      const processedDays: DayGroup[] = [];
-      for (const [date, dayGames] of Array.from(gamesByDay.entries())) {
-        const wins = dayGames.filter(g => g.win).length;
-        const losses = dayGames.length - wins;
-        const winRate = Math.round((wins / dayGames.length) * 100);
+      // Process each champion group
+      const processedChampions: ChampionGroup[] = [];
+      for (const [champion, championGames] of Array.from(gamesByChampion.entries())) {
+        // Sort games by date (most recent first)
+        championGames.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-        // Get AI summaries for each game with notes
-        const notesWithSummaries = await Promise.all(
-          dayGames
-            .filter(game => game.notes)
-            .map(async (game) => {
-              try {
-                const summaryResponse = await fetch('/api/summarize', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ notes: game.notes }),
-                });
-                const summaryData = await summaryResponse.json();
-                return {
-                  gameId: game.id,
-                  notes: game.notes || '',
-                  summary: summaryData.summary || '',
-                };
-              } catch (error) {
-                console.error('Failed to get summary for game:', error);
-                return {
-                  gameId: game.id,
-                  notes: game.notes || '',
-                  summary: '',
-                };
-              }
-            })
+        const wins = championGames.filter(g => g.win).length;
+        const losses = championGames.length - wins;
+        const winRate = Math.round((wins / championGames.length) * 100);
+
+        // Get AI summaries for each game
+        const gamesWithSummaries = await Promise.all(
+          championGames.map(async (game) => {
+            try {
+              const summaryResponse = await fetch('/api/summarize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notes: game.notes }),
+              });
+              const summaryData = await summaryResponse.json();
+              return {
+                game,
+                notes: game.notes || '',
+                summary: summaryData.summary || '',
+              };
+            } catch (error) {
+              console.error('Failed to get summary for game:', error);
+              return {
+                game,
+                notes: game.notes || '',
+                summary: '',
+              };
+            }
+          })
         );
 
-        // Get daily summary
-        const allNotes = dayGames
-          .filter(game => game.notes)
-          .map(game => game.notes)
-          .join('\n\n');
-
-        let daySummary = '';
-        if (allNotes) {
-          try {
-            const daySummaryResponse = await fetch('/api/summarize', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ notes: allNotes }),
-            });
-            const daySummaryData = await daySummaryResponse.json();
-            daySummary = daySummaryData.summary || '';
-          } catch (error) {
-            console.error('Failed to get daily summary:', error);
-          }
-        }
-
-        processedDays.push({
-          date,
-          games: dayGames,
+        processedChampions.push({
+          champion,
+          games: gamesWithSummaries,
+          totalGames: championGames.length,
           wins,
           losses,
           winRate,
-          notesWithSummaries,
-          daySummary,
         });
       }
 
-      setDayGroups(processedDays);
+      // Sort champions by most recent game
+      processedChampions.sort((a, b) => {
+        const aLatest = new Date(a.games[0].game.created_at).getTime();
+        const bLatest = new Date(b.games[0].game.created_at).getTime();
+        return bLatest - aLatest;
+      });
+
+      setChampionGroups(processedChampions);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch daily log:', error);
@@ -140,7 +127,7 @@ export default function DailyLog() {
     <div className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Daily Log</h1>
+          <h1 className="text-3xl font-bold">Notes</h1>
           <Link
             href="/stats"
             className="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors"
@@ -151,74 +138,69 @@ export default function DailyLog() {
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="text-gray-400">Loading daily log...</div>
+            <div className="text-gray-400">Loading notes...</div>
           </div>
-        ) : dayGroups.length === 0 ? (
+        ) : championGroups.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400">No games found</div>
+            <div className="text-gray-400">No notes found</div>
           </div>
         ) : (
           <div className="space-y-6">
-            {dayGroups.map((dayGroup) => (
-              <div key={dayGroup.date} className="bg-gray-800 rounded-lg p-6">
-                {/* Day Header */}
+            {championGroups.map((championGroup) => (
+              <div key={championGroup.champion} className="bg-gray-800 rounded-lg p-6">
+                {/* Champion Header */}
                 <div className="mb-4 pb-4 border-b border-gray-700">
-                  <h2 className="text-2xl font-bold mb-2">{dayGroup.date}</h2>
+                  <h2 className="text-2xl font-bold mb-2">{championGroup.champion}</h2>
                   <div className="flex gap-4 text-sm">
                     <span className="text-gray-400">
-                      {dayGroup.games.length} {dayGroup.games.length === 1 ? 'game' : 'games'}
+                      {championGroup.totalGames} {championGroup.totalGames === 1 ? 'game' : 'games'} with notes
                     </span>
-                    <span className="text-green-400">{dayGroup.wins}W</span>
-                    <span className="text-red-400">{dayGroup.losses}L</span>
-                    <span className="text-blue-400">{dayGroup.winRate}% WR</span>
+                    <span className="text-green-400">{championGroup.wins}W</span>
+                    <span className="text-red-400">{championGroup.losses}L</span>
+                    <span className="text-blue-400">{championGroup.winRate}% WR</span>
                   </div>
                 </div>
 
-                {/* Daily Summary */}
-                {dayGroup.daySummary && (
-                  <div className="mb-6 p-4 bg-purple-900/30 rounded-lg border border-purple-700/50">
-                    <h3 className="text-lg font-semibold mb-2 text-purple-300">📊 Daily Summary</h3>
-                    <p className="text-gray-300 whitespace-pre-line">{dayGroup.daySummary}</p>
-                  </div>
-                )}
-
                 {/* Game Notes with AI Summaries */}
-                {dayGroup.notesWithSummaries.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-300">Game Notes</h3>
-                    {dayGroup.notesWithSummaries.map((item) => {
-                      const game = dayGroup.games.find(g => g.id === item.gameId);
-                      if (!game) return null;
+                <div className="space-y-4">
+                  {championGroup.games.map((item) => {
+                    const game = item.game;
+                    const date = new Date(game.created_at).toLocaleDateString('en-US', {
+                      timeZone: 'America/Los_Angeles',
+                      weekday: 'short',
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    });
 
-                      return (
-                        <div key={item.gameId} className="p-4 bg-gray-700/50 rounded-lg">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="text-sm text-gray-400">
-                              Game #{item.gameId} • {game.my_adc || game.my_support} vs {game.enemy_adc} + {game.enemy_support} •
-                              <span className={game.win ? 'text-green-400 ml-2' : 'text-red-400 ml-2'}>
-                                {game.win ? 'Win' : 'Loss'}
-                              </span>
-                            </div>
+                    return (
+                      <div key={game.id} className="p-4 bg-gray-700/50 rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="text-sm text-gray-400">
+                            {date} • vs {game.enemy_adc} + {game.enemy_support} •
+                            <span className={game.win ? 'text-green-400 ml-2' : 'text-red-400 ml-2'}>
+                              {game.win ? 'Win' : 'Loss'}
+                            </span>
                           </div>
-
-                          {/* Original Notes */}
-                          <div className="mb-3">
-                            <div className="text-xs text-gray-500 mb-1">Notes:</div>
-                            <p className="text-gray-300 whitespace-pre-line text-sm">{item.notes}</p>
-                          </div>
-
-                          {/* AI Summary */}
-                          {item.summary && (
-                            <div className="p-3 bg-blue-900/30 rounded border border-blue-700/50">
-                              <div className="text-xs text-blue-300 mb-1">✨ AI Summary:</div>
-                              <p className="text-gray-300 whitespace-pre-line text-sm">{item.summary}</p>
-                            </div>
-                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+
+                        {/* Original Notes */}
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-500 mb-1">Notes:</div>
+                          <p className="text-gray-300 whitespace-pre-line text-sm">{item.notes}</p>
+                        </div>
+
+                        {/* AI Summary */}
+                        {item.summary && (
+                          <div className="p-3 bg-blue-900/30 rounded border border-blue-700/50">
+                            <div className="text-xs text-blue-300 mb-1">✨ AI Summary:</div>
+                            <p className="text-gray-300 whitespace-pre-line text-sm">{item.summary}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
