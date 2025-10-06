@@ -33,7 +33,7 @@ export default function LogGame() {
     notes: '',
     youtube_url: '',
     game_date: getCurrentPSTDate(),
-    game_type: 'solo_queue',
+    game_type: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -191,6 +191,7 @@ export default function LogGame() {
                   required
                   className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer"
                 >
+                  <option value="">Select...</option>
                   <option value="solo_queue">Solo Queue</option>
                   <option value="scrim">Scrim</option>
                   <option value="official_match">Official Match</option>

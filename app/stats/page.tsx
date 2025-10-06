@@ -727,13 +727,13 @@ export default function Stats() {
                               {new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="flex flex-col gap-1">
-                                <span className={`px-2 py-1 rounded text-xs font-semibold text-center ${
+                              <div className="flex flex-col gap-1 items-start">
+                                <span className={`px-2 py-1 rounded text-xs font-semibold text-center inline-block w-20 ${
                                   game.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
                                 }`}>
                                   {game.win ? 'Win' : 'Loss'}
                                 </span>
-                                <span className={`px-2 py-1 rounded text-xs font-semibold text-center ${gameTypeInfo.color}`}>
+                                <span className={`px-2 py-1 rounded text-xs font-semibold text-center inline-block w-20 ${gameTypeInfo.color}`}>
                                   {gameTypeInfo.label}
                                 </span>
                               </div>
