@@ -197,7 +197,7 @@ export default function Stats() {
         {/* Filters */}
         <div className="mb-8 bg-gray-800 p-6 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">Filters</h2>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-4 items-start">
             <div>
               <label className="block text-sm font-medium mb-2">Role</label>
               <div className="flex gap-2 flex-wrap">
