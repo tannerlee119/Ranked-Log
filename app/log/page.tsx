@@ -170,7 +170,7 @@ export default function LogGame() {
           {/* Game Info Section */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Game Info</h2>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4 items-end">
               <div>
                 <label className="block text-sm font-medium mb-1">Game Date</label>
                 <input
@@ -179,7 +179,7 @@ export default function LogGame() {
                   value={formData.game_date}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="w-full h-10 px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
                 />
               </div>
               <div>
@@ -189,7 +189,7 @@ export default function LogGame() {
                   value={formData.game_type}
                   onChange={handleChange as any}
                   required
-                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer"
+                  className="w-full h-10 px-3 py-2 bg-gray-700 rounded border border-gray-600 focus:border-blue-500 focus:outline-none cursor-pointer"
                 >
                   <option value="">Select...</option>
                   <option value="solo_queue">Solo Queue</option>

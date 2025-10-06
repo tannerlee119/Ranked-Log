@@ -39,6 +39,7 @@ export default function ChampionIcon({ championName, size = 40, className = '' }
       'cho gath': 'Chogath',
       "kai'sa": 'Kaisa',
       'kai sa': 'Kaisa',
+      'kaisa': 'Kaisa',
       'renata glasc': 'Renata',
       'nunu & willump': 'Nunu',
       'wukong': 'MonkeyKing',
