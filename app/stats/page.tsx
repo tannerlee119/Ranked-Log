@@ -74,6 +74,24 @@ export default function Stats() {
     }
   };
 
+  const getKPColor = (kp: number) => {
+    if (kp >= 60) return 'text-green-400';
+    if (kp >= 35.1) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const getCSColor = (cs: number) => {
+    if (cs >= 8.0) return 'text-green-400';
+    if (cs >= 6.7) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const getKDAColor = (kda: number) => {
+    if (kda > 3.75) return 'text-green-400';
+    if (kda >= 2.5) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
   // Clear filter when input is cleared
   useEffect(() => {
     if (championInput === '') {
@@ -372,7 +390,7 @@ export default function Stats() {
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Avg KDA</div>
-                <div className="text-3xl font-bold">
+                <div className={`text-3xl font-bold ${getKDAColor(stats.avgKDA)}`}>
                   {stats.avgKDA.toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-500">
@@ -381,11 +399,11 @@ export default function Stats() {
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Avg KP</div>
-                <div className="text-3xl font-bold">{stats.avgKP}%</div>
+                <div className={`text-3xl font-bold ${getKPColor(stats.avgKP)}`}>{stats.avgKP}%</div>
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Avg CS/min</div>
-                <div className="text-3xl font-bold">{stats.avgCS}</div>
+                <div className={`text-3xl font-bold ${getCSColor(stats.avgCS)}`}>{stats.avgCS}</div>
               </div>
             </div>
 
@@ -759,13 +777,13 @@ export default function Stats() {
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-semibold">{kda}</div>
+                              <div className={`font-semibold ${getKDAColor(parseFloat(kda))}`}>{kda}</div>
                               <div className="text-xs text-gray-500">
                                 {game.kills}/{game.deaths}/{game.assists}
                               </div>
                             </td>
-                            <td className="px-4 py-3">{game.kill_participation}%</td>
-                            <td className="px-4 py-3">{game.cs_per_min}</td>
+                            <td className={`px-4 py-3 font-semibold ${getKPColor(game.kill_participation)}`}>{game.kill_participation}%</td>
+                            <td className={`px-4 py-3 font-semibold ${getCSColor(game.cs_per_min)}`}>{game.cs_per_min}</td>
                             <td className="px-4 py-3 max-w-xs">
                               <div className="text-sm text-gray-400 truncate">
                                 {game.notes || '-'}
