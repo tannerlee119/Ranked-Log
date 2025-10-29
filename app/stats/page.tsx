@@ -771,6 +771,30 @@ export default function Stats() {
                       </div>
                     )}
                   </div>
+
+                  {/* Delete Button */}
+                  <div className="pt-4 border-t border-gray-700">
+                    <button
+                      onClick={async () => {
+                        if (selectedGame && window.confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
+                          try {
+                            const response = await fetch(`/api/games/${selectedGame.id}`, {
+                              method: 'DELETE',
+                            });
+                            if (response.ok) {
+                              setSelectedGame(null);
+                              fetchGames();
+                            }
+                          } catch (error) {
+                            console.error('Failed to delete game:', error);
+                          }
+                        }
+                      }}
+                      className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-semibold cursor-pointer transition-colors"
+                    >
+                      Delete Game
+                    </button>
+                  </div>
                 </div>
               </Modal>
             )}

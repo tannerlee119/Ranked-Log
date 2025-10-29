@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateGame } from '@/lib/db-turso';
+import { updateGame, deleteGame } from '@/lib/db-turso';
 
 export async function PATCH(
   request: NextRequest,
@@ -27,5 +27,22 @@ export async function PATCH(
   } catch (error) {
     console.error('Error updating game:', error);
     return NextResponse.json({ success: false, error: 'Failed to update game' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: paramId } = await params;
+    const id = parseInt(paramId);
+
+    await deleteGame(id);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting game:', error);
+    return NextResponse.json({ success: false, error: 'Failed to delete game' }, { status: 500 });
   }
 }

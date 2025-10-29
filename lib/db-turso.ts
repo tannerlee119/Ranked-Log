@@ -215,4 +215,11 @@ export async function updateGame(id: number, updates: { notes?: string; youtube_
   });
 }
 
+export async function deleteGame(id: number) {
+  await client.execute({
+    sql: 'DELETE FROM games WHERE id = ?',
+    args: [id]
+  });
+}
+
 export { client };
