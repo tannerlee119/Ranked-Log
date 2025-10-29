@@ -66,6 +66,7 @@ export default function Stats() {
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedYoutubeUrl, setEditedYoutubeUrl] = useState<string>('');
   const [isEditingYoutube, setIsEditingYoutube] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const gamesPerPage = 20;
 
   const getGameTypeInfo = (gameType?: string) => {
@@ -527,6 +528,7 @@ export default function Stats() {
                   setSelectedGame(null);
                   setEditedNotes('');
                   setIsEditingNotes(false);
+                  setShowDeleteConfirm(false);
                 }}
                 title="Game Details"
               >
@@ -772,28 +774,49 @@ export default function Stats() {
                     )}
                   </div>
 
-                  {/* Delete Button */}
+                  {/* Delete Section */}
                   <div className="pt-4 border-t border-gray-700">
-                    <button
-                      onClick={async () => {
-                        if (selectedGame && window.confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
-                          try {
-                            const response = await fetch(`/api/games/${selectedGame.id}`, {
-                              method: 'DELETE',
-                            });
-                            if (response.ok) {
-                              setSelectedGame(null);
-                              fetchGames();
-                            }
-                          } catch (error) {
-                            console.error('Failed to delete game:', error);
-                          }
-                        }
-                      }}
-                      className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-semibold cursor-pointer transition-colors"
-                    >
-                      Delete Game
-                    </button>
+                    {!showDeleteConfirm ? (
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 text-red-300 rounded text-sm cursor-pointer transition-colors"
+                      >
+                        Delete Game
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-300">Are you sure you want to delete this game? This action cannot be undone.</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () => {
+                              if (selectedGame) {
+                                try {
+                                  const response = await fetch(`/api/games/${selectedGame.id}`, {
+                                    method: 'DELETE',
+                                  });
+                                  if (response.ok) {
+                                    setSelectedGame(null);
+                                    setShowDeleteConfirm(false);
+                                    fetchGames();
+                                  }
+                                } catch (error) {
+                                  console.error('Failed to delete game:', error);
+                                }
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-red-900/60 hover:bg-red-900/80 text-red-200 rounded text-sm cursor-pointer transition-colors"
+                          >
+                            Yes, Delete
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(false)}
+                            className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Modal>
