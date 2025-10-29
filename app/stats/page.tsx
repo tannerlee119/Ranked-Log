@@ -50,7 +50,7 @@ interface Stats {
 
 export default function Stats() {
   const [games, setGames] = useState<Game[]>([]);
-  const [filter, setFilter] = useState<'10' | '20' | 'all'>('10');
+  const [filter, setFilter] = useState<'20' | '40' | 'all'>('20');
   const [championFilter, setChampionFilter] = useState<string>('');
   const [championInput, setChampionInput] = useState<string>('');
   const [enemyChampionFilter, setEnemyChampionFilter] = useState<string>('');
@@ -369,20 +369,20 @@ export default function Stats() {
                 <label className="block text-sm font-medium mb-2">Game Range</label>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setFilter('10')}
-                    className={`px-4 py-2 rounded cursor-pointer ${
-                      filter === '10' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                  >
-                    Last 10
-                  </button>
-                  <button
                     onClick={() => setFilter('20')}
                     className={`px-4 py-2 rounded cursor-pointer ${
                       filter === '20' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
                     }`}
                   >
                     Last 20
+                  </button>
+                  <button
+                    onClick={() => setFilter('40')}
+                    className={`px-4 py-2 rounded cursor-pointer ${
+                      filter === '40' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                    }`}
+                  >
+                    Last 40
                   </button>
                   <button
                     onClick={() => setFilter('all')}
