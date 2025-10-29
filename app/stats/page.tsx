@@ -13,10 +13,16 @@ import Modal from '@/components/Modal';
 interface Game {
   id: number;
   role: string;
-  my_adc: string;
-  my_support: string;
-  enemy_adc: string;
-  enemy_support: string;
+  my_top?: string;
+  my_mid?: string;
+  my_adc?: string;
+  my_support?: string;
+  my_jungle?: string;
+  enemy_top?: string;
+  enemy_mid?: string;
+  enemy_adc?: string;
+  enemy_support?: string;
+  enemy_jungle?: string;
   kills: number;
   deaths: number;
   assists: number;
@@ -90,6 +96,74 @@ export default function Stats() {
     if (kda > 3.75) return 'text-green-400';
     if (kda >= 2.5) return 'text-yellow-400';
     return 'text-red-400';
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'top': return 'Top';
+      case 'jungle': return 'Jungle';
+      case 'mid': return 'Mid';
+      case 'adc': return 'ADC';
+      case 'support': return 'Support';
+      default: return role;
+    }
+  };
+
+  // Get champion data based on role
+  const getRoleChampions = (game: Game) => {
+    switch (game.role) {
+      case 'top':
+        return {
+          myChampions: [
+            { name: game.my_top!, label: 'Top', isPlayer: true },
+            { name: game.my_jungle!, label: 'Jungle', isPlayer: false },
+          ],
+          enemyChampions: [
+            { name: game.enemy_top!, label: 'Top', isPlayer: false },
+            { name: game.enemy_jungle!, label: 'Jungle', isPlayer: false },
+          ],
+        };
+      case 'mid':
+        return {
+          myChampions: [
+            { name: game.my_mid!, label: 'Mid', isPlayer: true },
+            { name: game.my_jungle!, label: 'Jungle', isPlayer: false },
+          ],
+          enemyChampions: [
+            { name: game.enemy_mid!, label: 'Mid', isPlayer: false },
+            { name: game.enemy_jungle!, label: 'Jungle', isPlayer: false },
+          ],
+        };
+      case 'adc':
+        return {
+          myChampions: [
+            { name: game.my_adc!, label: 'ADC', isPlayer: true },
+            { name: game.my_support!, label: 'Support', isPlayer: false },
+          ],
+          enemyChampions: [
+            { name: game.enemy_adc!, label: 'ADC', isPlayer: false },
+            { name: game.enemy_support!, label: 'Support', isPlayer: false },
+          ],
+        };
+      case 'support':
+        return {
+          myChampions: [
+            { name: game.my_support!, label: 'Support', isPlayer: true },
+            { name: game.my_adc!, label: 'ADC', isPlayer: false },
+            { name: game.my_jungle!, label: 'Jungle', isPlayer: false },
+          ],
+          enemyChampions: [
+            { name: game.enemy_support!, label: 'Support', isPlayer: false },
+            { name: game.enemy_adc!, label: 'ADC', isPlayer: false },
+            { name: game.enemy_jungle!, label: 'Jungle', isPlayer: false },
+          ],
+        };
+      default:
+        return {
+          myChampions: [],
+          enemyChampions: [],
+        };
+    }
   };
 
   // Clear filter when input is cleared
@@ -484,27 +558,27 @@ export default function Stats() {
                     <div>
                       <div className="text-sm text-gray-400 mb-2">My Team</div>
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <ChampionIcon championName={selectedGame.my_adc} size={40} />
-                          <div className="text-blue-400">{selectedGame.my_adc}</div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <ChampionIcon championName={selectedGame.my_support} size={40} />
-                          <div>{selectedGame.my_support}</div>
-                        </div>
+                        {getRoleChampions(selectedGame).myChampions.map((champ, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <ChampionIcon championName={champ.name} size={40} />
+                            <div className={champ.isPlayer ? 'text-blue-400' : ''}>
+                              {champ.name} <span className="text-xs text-gray-500">({champ.label})</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-400 mb-2">Enemy Team</div>
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <ChampionIcon championName={selectedGame.enemy_adc} size={40} />
-                          <div className="text-red-400">{selectedGame.enemy_adc}</div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <ChampionIcon championName={selectedGame.enemy_support} size={40} />
-                          <div>{selectedGame.enemy_support}</div>
-                        </div>
+                        {getRoleChampions(selectedGame).enemyChampions.map((champ, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <ChampionIcon championName={champ.name} size={40} />
+                            <div className={idx === 0 ? 'text-red-400' : ''}>
+                              {champ.name} <span className="text-xs text-gray-500">({champ.label})</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -711,9 +785,10 @@ export default function Stats() {
                   <thead className="bg-gray-700">
                     <tr>
                       <th className="px-4 py-3 text-left">Date</th>
+                      <th className="px-4 py-3 text-left">Role</th>
                       <th className="px-4 py-3 text-left">Result</th>
-                      <th className="px-4 py-3 text-left">My Duo</th>
-                      <th className="px-4 py-3 text-left">Enemy Duo</th>
+                      <th className="px-4 py-3 text-left">My Team</th>
+                      <th className="px-4 py-3 text-left">Enemy Team</th>
                       <th className="px-4 py-3 text-left">KDA</th>
                       <th className="px-4 py-3 text-left">KP</th>
                       <th className="px-4 py-3 text-left">CS/min</th>
@@ -723,7 +798,7 @@ export default function Stats() {
                   <tbody className="divide-y divide-gray-700">
                     {games.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                        <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                           No games logged yet. <Link href="/log" className="text-blue-400 hover:underline">Log your first game!</Link>
                         </td>
                       </tr>
@@ -733,6 +808,7 @@ export default function Stats() {
                           ? (game.kills + game.assists).toFixed(2)
                           : ((game.kills + game.assists) / game.deaths).toFixed(2);
                         const gameTypeInfo = getGameTypeInfo(game.game_type);
+                        const roleChampions = getRoleChampions(game);
 
                         return (
                           <tr
@@ -748,6 +824,11 @@ export default function Stats() {
                               {new Date(game.created_at).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}
                             </td>
                             <td className="px-4 py-3">
+                              <div className="flex items-center justify-center">
+                                <Image src={`/roles/${game.role}.png`} alt={getRoleLabel(game.role)} width={32} height={32} title={getRoleLabel(game.role)} />
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
                               <div className="flex flex-col gap-1 items-start">
                                 <span className={`px-2 py-1 rounded text-xs font-semibold text-center inline-block w-20 ${
                                   game.win ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
@@ -760,24 +841,24 @@ export default function Stats() {
                               </div>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <ChampionIcon championName={game.my_adc} size={32} />
-                                <div className="text-sm text-blue-400">{game.my_adc}</div>
-                              </div>
-                              <div className="flex items-center gap-2 mt-2">
-                                <ChampionIcon championName={game.my_support} size={32} />
-                                <div className="text-sm text-gray-400">{game.my_support}</div>
-                              </div>
+                              {roleChampions.myChampions.map((champ, idx) => (
+                                <div key={idx} className={`flex items-center gap-2 ${idx > 0 ? 'mt-2' : ''}`}>
+                                  <ChampionIcon championName={champ.name} size={32} />
+                                  <div className={`text-sm ${champ.isPlayer ? 'text-blue-400' : 'text-gray-400'}`}>
+                                    {champ.name}
+                                  </div>
+                                </div>
+                              ))}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <ChampionIcon championName={game.enemy_adc} size={32} />
-                                <div className="text-sm text-red-400">{game.enemy_adc}</div>
-                              </div>
-                              <div className="flex items-center gap-2 mt-2">
-                                <ChampionIcon championName={game.enemy_support} size={32} />
-                                <div className="text-sm text-gray-400">{game.enemy_support}</div>
-                              </div>
+                              {roleChampions.enemyChampions.map((champ, idx) => (
+                                <div key={idx} className={`flex items-center gap-2 ${idx > 0 ? 'mt-2' : ''}`}>
+                                  <ChampionIcon championName={champ.name} size={32} />
+                                  <div className={`text-sm ${idx === 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                                    {champ.name}
+                                  </div>
+                                </div>
+                              ))}
                             </td>
                             <td className="px-4 py-3">
                               <div className={`font-semibold ${getKDAColor(parseFloat(kda))}`}>{kda}</div>

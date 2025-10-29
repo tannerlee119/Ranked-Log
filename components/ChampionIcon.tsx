@@ -3,13 +3,28 @@
 import { useState } from 'react';
 
 interface ChampionIconProps {
-  championName: string;
+  championName?: string;
   size?: number;
   className?: string;
 }
 
 export default function ChampionIcon({ championName, size = 40, className = '' }: ChampionIconProps) {
   const [imgError, setImgError] = useState(false);
+
+  // Handle undefined or empty champion name
+  if (!championName || championName.trim() === '') {
+    return (
+      <div
+        className={`flex items-center justify-center bg-gray-700 rounded ${className}`}
+        style={{ width: size, height: size }}
+        title="Unknown"
+      >
+        <span className="text-white font-bold" style={{ fontSize: size / 2.5 }}>
+          ?
+        </span>
+      </div>
+    );
+  }
 
   // Format champion name for Data Dragon URL
   const formatChampionName = (name: string) => {
