@@ -124,12 +124,10 @@ export default function LogGame() {
             {/* Jungle */}
             <button
               onClick={() => setSelectedRole('jungle')}
-              disabled
-              className="aspect-square bg-gray-700 opacity-50 cursor-not-allowed p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+              className="aspect-square bg-gray-700 hover:bg-blue-600 p-6 rounded-lg flex flex-col items-center justify-center transition-colors cursor-pointer"
             >
-              <Image src="/roles/jungle.png" alt="Jungle" width={64} height={64} className="mb-3 opacity-60" />
+              <Image src="/roles/jungle.png" alt="Jungle" width={64} height={64} className="mb-3" />
               <div className="font-semibold">Jungle</div>
-              <div className="text-xs text-gray-500 mt-2">Coming Soon</div>
             </button>
 
             {/* Mid Lane */}
@@ -205,6 +203,68 @@ export default function LogGame() {
                   value={formData.enemy_jungle}
                   onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
                   placeholder="e.g., Elise"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    if (selectedRole === 'jungle') {
+      return (
+        <>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-blue-400">My Team</h2>
+              <div className="space-y-4">
+                <ChampionAutocomplete
+                  label="Jungle"
+                  value={formData.my_jungle}
+                  onChange={(value) => setFormData({ ...formData, my_jungle: value })}
+                  placeholder="e.g., Lee Sin"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Mid"
+                  value={formData.my_mid}
+                  onChange={(value) => setFormData({ ...formData, my_mid: value })}
+                  placeholder="e.g., Ahri"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Support"
+                  value={formData.my_support}
+                  onChange={(value) => setFormData({ ...formData, my_support: value })}
+                  placeholder="e.g., Thresh"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-red-400">Enemy Team</h2>
+              <div className="space-y-4">
+                <ChampionAutocomplete
+                  label="Enemy Jungle"
+                  value={formData.enemy_jungle}
+                  onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
+                  placeholder="e.g., Elise"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Enemy Mid"
+                  value={formData.enemy_mid}
+                  onChange={(value) => setFormData({ ...formData, enemy_mid: value })}
+                  placeholder="e.g., Zed"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Enemy Support"
+                  value={formData.enemy_support}
+                  onChange={(value) => setFormData({ ...formData, enemy_support: value })}
+                  placeholder="e.g., Lux"
                   required
                 />
               </div>
@@ -378,6 +438,7 @@ export default function LogGame() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">
             {selectedRole === 'top' && 'Top Lane'}
+            {selectedRole === 'jungle' && 'Jungle'}
             {selectedRole === 'mid' && 'Mid Lane'}
             {selectedRole === 'adc' && 'ADC'}
             {selectedRole === 'support' && 'Support'}

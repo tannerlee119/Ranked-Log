@@ -124,6 +124,19 @@ export default function Stats() {
             { name: game.enemy_jungle!, label: 'Jungle', isPlayer: false },
           ],
         };
+      case 'jungle':
+        return {
+          myChampions: [
+            { name: game.my_jungle!, label: 'Jungle', isPlayer: true },
+            { name: game.my_mid!, label: 'Mid', isPlayer: false },
+            { name: game.my_support!, label: 'Support', isPlayer: false },
+          ],
+          enemyChampions: [
+            { name: game.enemy_jungle!, label: 'Jungle', isPlayer: false },
+            { name: game.enemy_mid!, label: 'Mid', isPlayer: false },
+            { name: game.enemy_support!, label: 'Support', isPlayer: false },
+          ],
+        };
       case 'mid':
         return {
           myChampions: [
@@ -314,11 +327,12 @@ export default function Stats() {
                 </button>
                 <button
                   onClick={() => setRoleFilter('jungle')}
-                  disabled
-                  className="w-12 h-12 rounded cursor-not-allowed bg-gray-700 opacity-50 flex items-center justify-center p-2"
-                  title="Jungle (Coming Soon)"
+                  className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                    roleFilter === 'jungle' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                  title="Jungle"
                 >
-                  <Image src="/roles/jungle.png" alt="Jungle" width={32} height={32} className="opacity-60" />
+                  <Image src="/roles/jungle.png" alt="Jungle" width={32} height={32} />
                 </button>
                 <button
                   onClick={() => setRoleFilter('mid')}
