@@ -24,8 +24,14 @@ export async function POST(request: NextRequest) {
 
     const id = await addGame({
       role: body.role || 'adc',
+      my_top: body.my_top,
+      my_jungle: body.my_jungle,
+      my_mid: body.my_mid,
       my_adc: body.my_adc,
       my_support: body.my_support,
+      enemy_top: body.enemy_top,
+      enemy_jungle: body.enemy_jungle,
+      enemy_mid: body.enemy_mid,
       enemy_adc: body.enemy_adc,
       enemy_support: body.enemy_support,
       kills: body.kills,

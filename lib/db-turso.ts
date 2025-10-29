@@ -12,10 +12,16 @@ export async function initDb() {
       CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         role TEXT NOT NULL DEFAULT 'adc',
-        my_adc TEXT NOT NULL,
-        my_support TEXT NOT NULL,
-        enemy_adc TEXT NOT NULL,
-        enemy_support TEXT NOT NULL,
+        my_top TEXT,
+        my_jungle TEXT,
+        my_mid TEXT,
+        my_adc TEXT,
+        my_support TEXT,
+        enemy_top TEXT,
+        enemy_jungle TEXT,
+        enemy_mid TEXT,
+        enemy_adc TEXT,
+        enemy_support TEXT,
         kills INTEGER NOT NULL,
         deaths INTEGER NOT NULL,
         assists INTEGER NOT NULL,
@@ -24,9 +30,33 @@ export async function initDb() {
         win INTEGER NOT NULL DEFAULT 0,
         notes TEXT,
         youtube_url TEXT,
+        game_type TEXT,
+        game_date TEXT,
+        ai_summary TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Add new columns if they don't exist (for existing databases)
+    const columnsToAdd = [
+      'my_top TEXT',
+      'my_jungle TEXT',
+      'my_mid TEXT',
+      'enemy_top TEXT',
+      'enemy_jungle TEXT',
+      'enemy_mid TEXT',
+      'game_type TEXT',
+      'game_date TEXT',
+      'ai_summary TEXT'
+    ];
+
+    for (const column of columnsToAdd) {
+      try {
+        await client.execute(`ALTER TABLE games ADD COLUMN ${column}`);
+      } catch (error) {
+        // Column might already exist, ignore error
+      }
+    }
   } catch (error) {
     console.error('Database initialization error:', error);
   }
@@ -35,10 +65,16 @@ export async function initDb() {
 export interface Game {
   id?: number;
   role: string;
-  my_adc: string;
-  my_support: string;
-  enemy_adc: string;
-  enemy_support: string;
+  my_top?: string;
+  my_jungle?: string;
+  my_mid?: string;
+  my_adc?: string;
+  my_support?: string;
+  enemy_top?: string;
+  enemy_jungle?: string;
+  enemy_mid?: string;
+  enemy_adc?: string;
+  enemy_support?: string;
   kills: number;
   deaths: number;
   assists: number;
@@ -67,15 +103,26 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
 
   const result = await client.execute({
     sql: `
-      INSERT INTO games (role, my_adc, my_support, enemy_adc, enemy_support, kills, deaths, assists, kill_participation, cs_per_min, win, notes, youtube_url, game_type, ai_summary, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO games (
+        role, my_top, my_jungle, my_mid, my_adc, my_support,
+        enemy_top, enemy_jungle, enemy_mid, enemy_adc, enemy_support,
+        kills, deaths, assists, kill_participation, cs_per_min, win,
+        notes, youtube_url, game_type, ai_summary, created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     args: [
       game.role,
-      game.my_adc,
-      game.my_support,
-      game.enemy_adc,
-      game.enemy_support,
+      game.my_top || null,
+      game.my_jungle || null,
+      game.my_mid || null,
+      game.my_adc || null,
+      game.my_support || null,
+      game.enemy_top || null,
+      game.enemy_jungle || null,
+      game.enemy_mid || null,
+      game.enemy_adc || null,
+      game.enemy_support || null,
       game.kills,
       game.deaths,
       game.assists,
@@ -104,13 +151,13 @@ export async function getGames(limit?: number, championFilter?: string, roleFilt
   }
 
   if (championFilter) {
-    conditions.push('(my_adc = ? OR my_support = ?)');
-    args.push(championFilter, championFilter);
+    conditions.push('(my_top = ? OR my_jungle = ? OR my_mid = ? OR my_adc = ? OR my_support = ?)');
+    args.push(championFilter, championFilter, championFilter, championFilter, championFilter);
   }
 
   if (enemyChampionFilter) {
-    conditions.push('(enemy_adc = ? OR enemy_support = ?)');
-    args.push(enemyChampionFilter, enemyChampionFilter);
+    conditions.push('(enemy_top = ? OR enemy_jungle = ? OR enemy_mid = ? OR enemy_adc = ? OR enemy_support = ?)');
+    args.push(enemyChampionFilter, enemyChampionFilter, enemyChampionFilter, enemyChampionFilter, enemyChampionFilter);
   }
 
   if (gameTypeFilter && gameTypeFilter !== 'all') {
