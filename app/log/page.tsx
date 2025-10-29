@@ -21,10 +21,12 @@ export default function LogGame() {
 
   const [formData, setFormData] = useState({
     my_top: '',
+    my_mid: '',
     my_adc: '',
     my_support: '',
     my_jungle: '',
     enemy_top: '',
+    enemy_mid: '',
     enemy_adc: '',
     enemy_support: '',
     enemy_jungle: '',
@@ -133,12 +135,10 @@ export default function LogGame() {
             {/* Mid Lane */}
             <button
               onClick={() => setSelectedRole('mid')}
-              disabled
-              className="aspect-square bg-gray-700 opacity-50 cursor-not-allowed p-6 rounded-lg flex flex-col items-center justify-center transition-colors"
+              className="aspect-square bg-gray-700 hover:bg-blue-600 p-6 rounded-lg flex flex-col items-center justify-center transition-colors cursor-pointer"
             >
-              <Image src="/roles/mid.png" alt="Mid" width={64} height={64} className="mb-3 opacity-60" />
+              <Image src="/roles/mid.png" alt="Mid" width={64} height={64} className="mb-3" />
               <div className="font-semibold">Mid</div>
-              <div className="text-xs text-gray-500 mt-2">Coming Soon</div>
             </button>
 
             {/* ADC */}
@@ -216,6 +216,54 @@ export default function LogGame() {
       );
     }
 
+    if (selectedRole === 'mid') {
+      return (
+        <>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-blue-400">My Team</h2>
+              <div className="space-y-4">
+                <ChampionAutocomplete
+                  label="Mid"
+                  value={formData.my_mid}
+                  onChange={(value) => setFormData({ ...formData, my_mid: value })}
+                  placeholder="e.g., Ahri"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Jungle"
+                  value={formData.my_jungle}
+                  onChange={(value) => setFormData({ ...formData, my_jungle: value })}
+                  placeholder="e.g., Lee Sin"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-red-400">Enemy Team</h2>
+              <div className="space-y-4">
+                <ChampionAutocomplete
+                  label="Enemy Mid"
+                  value={formData.enemy_mid}
+                  onChange={(value) => setFormData({ ...formData, enemy_mid: value })}
+                  placeholder="e.g., Zed"
+                  required
+                />
+                <ChampionAutocomplete
+                  label="Enemy Jungle"
+                  value={formData.enemy_jungle}
+                  onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
+                  placeholder="e.g., Elise"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    }
+
     // ADC role form (default)
     return (
       <>
@@ -268,7 +316,11 @@ export default function LogGame() {
     <div className="min-h-screen p-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">{selectedRole === 'top' ? 'Top Lane' : 'ADC'}</h1>
+          <h1 className="text-3xl font-bold">
+            {selectedRole === 'top' && 'Top Lane'}
+            {selectedRole === 'mid' && 'Mid Lane'}
+            {selectedRole === 'adc' && 'ADC'}
+          </h1>
           <button
             onClick={() => setSelectedRole(null)}
             className="text-blue-400 hover:text-blue-300 cursor-pointer"
