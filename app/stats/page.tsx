@@ -60,7 +60,7 @@ export default function Stats() {
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedYoutubeUrl, setEditedYoutubeUrl] = useState<string>('');
   const [isEditingYoutube, setIsEditingYoutube] = useState(false);
-  const gamesPerPage = 10;
+  const gamesPerPage = 20;
 
   const getGameTypeInfo = (gameType?: string) => {
     switch (gameType) {
