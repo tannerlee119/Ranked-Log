@@ -478,6 +478,7 @@ export default function LogGame() {
                 >
                   <option value="">Select...</option>
                   <option value="solo_queue">Solo Queue</option>
+                  <option value="flex">Flex</option>
                   <option value="scrim">Scrim</option>
                   <option value="official_match">Official Match</option>
                 </select>

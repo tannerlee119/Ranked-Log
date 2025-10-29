@@ -71,6 +71,8 @@ export default function Stats() {
 
   const getGameTypeInfo = (gameType?: string) => {
     switch (gameType) {
+      case 'flex':
+        return { label: 'Flex', color: 'bg-teal-900 text-teal-300' };
       case 'scrim':
         return { label: 'Scrim', color: 'bg-yellow-900 text-yellow-300' };
       case 'official_match':
@@ -410,6 +412,7 @@ export default function Stats() {
                 >
                   <option value="all">All Types</option>
                   <option value="solo_queue">Solo Queue</option>
+                  <option value="flex">Flex</option>
                   <option value="scrim">Scrim</option>
                   <option value="official_match">Official Match</option>
                 </select>
@@ -788,8 +791,20 @@ export default function Stats() {
                     )}
                   </div>
 
-                  {/* Delete Section */}
-                  <div className="pt-4 border-t border-gray-700">
+                  {/* Action Buttons */}
+                  <div className="pt-4 border-t border-gray-700 flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (selectedGame) {
+                          // Navigate to edit page or open in new tab
+                          window.open(`/log?edit=${selectedGame.id}`, '_blank');
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded text-sm cursor-pointer transition-colors"
+                    >
+                      Edit Game
+                    </button>
+
                     {!showDeleteConfirm ? (
                       <button
                         onClick={() => setShowDeleteConfirm(true)}
@@ -798,36 +813,38 @@ export default function Stats() {
                         Delete Game
                       </button>
                     ) : (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-300">Are you sure you want to delete this game? This action cannot be undone.</p>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={async () => {
-                              if (selectedGame) {
-                                try {
-                                  const response = await fetch(`/api/games/${selectedGame.id}`, {
-                                    method: 'DELETE',
-                                  });
-                                  if (response.ok) {
-                                    setSelectedGame(null);
-                                    setShowDeleteConfirm(false);
-                                    fetchGames();
+                      <div className="flex-1">
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-300">Are you sure you want to delete this game? This action cannot be undone.</p>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={async () => {
+                                if (selectedGame) {
+                                  try {
+                                    const response = await fetch(`/api/games/${selectedGame.id}`, {
+                                      method: 'DELETE',
+                                    });
+                                    if (response.ok) {
+                                      setSelectedGame(null);
+                                      setShowDeleteConfirm(false);
+                                      fetchGames();
+                                    }
+                                  } catch (error) {
+                                    console.error('Failed to delete game:', error);
                                   }
-                                } catch (error) {
-                                  console.error('Failed to delete game:', error);
                                 }
-                              }
-                            }}
-                            className="px-3 py-1.5 bg-red-900/60 hover:bg-red-900/80 text-red-200 rounded text-sm cursor-pointer transition-colors"
-                          >
-                            Yes, Delete
-                          </button>
-                          <button
-                            onClick={() => setShowDeleteConfirm(false)}
-                            className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer transition-colors"
-                          >
-                            Cancel
-                          </button>
+                              }}
+                              className="px-3 py-1.5 bg-red-900/60 hover:bg-red-900/80 text-red-200 rounded text-sm cursor-pointer transition-colors"
+                            >
+                              Yes, Delete
+                            </button>
+                            <button
+                              onClick={() => setShowDeleteConfirm(false)}
+                              className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
