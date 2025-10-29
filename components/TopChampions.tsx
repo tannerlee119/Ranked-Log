@@ -1,14 +1,22 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import ChampionIcon from './ChampionIcon';
 
 interface Game {
   id: number;
   role: string;
-  my_adc: string;
-  my_support: string;
-  enemy_adc: string;
-  enemy_support: string;
+  my_top?: string;
+  my_jungle?: string;
+  my_mid?: string;
+  my_adc?: string;
+  my_support?: string;
+  enemy_top?: string;
+  enemy_jungle?: string;
+  enemy_mid?: string;
+  enemy_adc?: string;
+  enemy_support?: string;
   kills: number;
   deaths: number;
   assists: number;
@@ -34,11 +42,32 @@ interface ChampionStats {
 }
 
 export default function TopChampions({ games }: TopChampionsProps) {
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+
+  // Get the champion played based on role
+  const getPlayerChampion = (game: Game): string | null => {
+    switch (game.role) {
+      case 'top': return game.my_top || null;
+      case 'jungle': return game.my_jungle || null;
+      case 'mid': return game.my_mid || null;
+      case 'adc': return game.my_adc || null;
+      case 'support': return game.my_support || null;
+      default: return null;
+    }
+  };
+
+  // Filter games by role if needed
+  const filteredGames = roleFilter === 'all'
+    ? games
+    : games.filter(game => game.role === roleFilter);
+
   // Calculate champion stats
   const championMap = new Map<string, { games: number; wins: number; totalKills: number; totalDeaths: number; totalAssists: number; totalCS: number; totalKP: number }>();
 
-  games.forEach((game) => {
-    const champion = game.my_adc; // For ADC role
+  filteredGames.forEach((game) => {
+    const champion = getPlayerChampion(game);
+
+    if (!champion) return;
 
     if (!championMap.has(champion)) {
       championMap.set(champion, {
@@ -79,15 +108,75 @@ export default function TopChampions({ games }: TopChampionsProps) {
     };
   });
 
-  // Sort by games played and take top 10
+  // Sort by games played and take top 8
   const topChampions = championStats
     .sort((a, b) => b.games - a.games)
-    .slice(0, 10);
+    .slice(0, 8);
 
   if (topChampions.length === 0) {
     return (
-      <div className="bg-gray-800 p-6 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4">Most Played Champions</h3>
+      <div className="space-y-4">
+        {/* Role Filter */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Filter by Role</label>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setRoleFilter('all')}
+              className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                roleFilter === 'all' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              title="All Roles"
+            >
+              <Image src="/roles/all.png" alt="All Roles" width={32} height={32} />
+            </button>
+            <button
+              onClick={() => setRoleFilter('top')}
+              className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                roleFilter === 'top' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              title="Top"
+            >
+              <Image src="/roles/top.png" alt="Top" width={32} height={32} />
+            </button>
+            <button
+              onClick={() => setRoleFilter('jungle')}
+              className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                roleFilter === 'jungle' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              title="Jungle"
+            >
+              <Image src="/roles/jungle.png" alt="Jungle" width={32} height={32} />
+            </button>
+            <button
+              onClick={() => setRoleFilter('mid')}
+              className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                roleFilter === 'mid' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              title="Mid"
+            >
+              <Image src="/roles/mid.png" alt="Mid" width={32} height={32} />
+            </button>
+            <button
+              onClick={() => setRoleFilter('adc')}
+              className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                roleFilter === 'adc' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              title="ADC"
+            >
+              <Image src="/roles/adc.png" alt="ADC" width={32} height={32} />
+            </button>
+            <button
+              onClick={() => setRoleFilter('support')}
+              className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                roleFilter === 'support' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              title="Support"
+            >
+              <Image src="/roles/support.png" alt="Support" width={32} height={32} />
+            </button>
+          </div>
+        </div>
+
         <div className="text-center py-8 text-gray-500">
           No champions played yet
         </div>
@@ -96,8 +185,68 @@ export default function TopChampions({ games }: TopChampionsProps) {
   }
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Most Played Champions</h3>
+    <div className="space-y-4">
+      {/* Role Filter */}
+      <div>
+        <label className="block text-sm font-medium mb-2">Filter by Role</label>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setRoleFilter('all')}
+            className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+              roleFilter === 'all' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+            title="All Roles"
+          >
+            <Image src="/roles/all.png" alt="All Roles" width={32} height={32} />
+          </button>
+          <button
+            onClick={() => setRoleFilter('top')}
+            className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+              roleFilter === 'top' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+            title="Top"
+          >
+            <Image src="/roles/top.png" alt="Top" width={32} height={32} />
+          </button>
+          <button
+            onClick={() => setRoleFilter('jungle')}
+            className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+              roleFilter === 'jungle' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+            title="Jungle"
+          >
+            <Image src="/roles/jungle.png" alt="Jungle" width={32} height={32} />
+          </button>
+          <button
+            onClick={() => setRoleFilter('mid')}
+            className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+              roleFilter === 'mid' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+            title="Mid"
+          >
+            <Image src="/roles/mid.png" alt="Mid" width={32} height={32} />
+          </button>
+          <button
+            onClick={() => setRoleFilter('adc')}
+            className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+              roleFilter === 'adc' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+            title="ADC"
+          >
+            <Image src="/roles/adc.png" alt="ADC" width={32} height={32} />
+          </button>
+          <button
+            onClick={() => setRoleFilter('support')}
+            className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+              roleFilter === 'support' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+            }`}
+            title="Support"
+          >
+            <Image src="/roles/support.png" alt="Support" width={32} height={32} />
+          </button>
+        </div>
+      </div>
+
       <div className="space-y-3">
         {topChampions.map((champ, index) => (
           <div
