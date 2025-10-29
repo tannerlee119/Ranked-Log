@@ -230,11 +230,12 @@ export default function Stats() {
                 </button>
                 <button
                   onClick={() => setRoleFilter('top')}
-                  disabled
-                  className="w-12 h-12 rounded cursor-not-allowed bg-gray-700 opacity-50 flex items-center justify-center p-2"
-                  title="Top (Coming Soon)"
+                  className={`w-12 h-12 rounded cursor-pointer flex items-center justify-center p-2 ${
+                    roleFilter === 'top' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                  title="Top"
                 >
-                  <Image src="/roles/top.png" alt="Top" width={32} height={32} className="opacity-60" />
+                  <Image src="/roles/top.png" alt="Top" width={32} height={32} />
                 </button>
                 <button
                   onClick={() => setRoleFilter('jungle')}
