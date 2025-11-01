@@ -55,11 +55,22 @@ export default function ChampionAutocomplete({
   const selectedItemRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const oldValue = inputValue;
     setInputValue(value);
+
     // If value changes from parent and we're in initially selected mode, update selection state
     if (initiallySelected && value !== '') {
-      setIsChampionSelected(true);
-      setShowError(false);
+      // Check if it's a valid champion name
+      const isValid = CHAMPIONS.some((champ) => {
+        const normalizedChamp = champ.toLowerCase().replace(/['\s]/g, '');
+        const normalizedInput = value.toLowerCase().replace(/['\s]/g, '');
+        return normalizedChamp === normalizedInput || champ.toLowerCase() === value.toLowerCase();
+      });
+
+      if (isValid) {
+        setIsChampionSelected(true);
+        setShowError(false);
+      }
     } else if (value === '') {
       setIsChampionSelected(false);
     }
@@ -85,7 +96,7 @@ export default function ChampionAutocomplete({
     const val = e.target.value;
     setInputValue(val);
     onChange(val);
-    setIsChampionSelected(false); // Reset when user types
+    setIsChampionSelected(false); // Always reset when user types
     setShowError(false); // Clear error when user types
 
     if (val.length > 0) {
