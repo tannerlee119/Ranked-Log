@@ -10,6 +10,7 @@ interface ChampionAutocompleteProps {
   label: string;
   placeholder?: string;
   required?: boolean;
+  initiallySelected?: boolean;
 }
 
 // List of all League champions
@@ -41,12 +42,13 @@ export default function ChampionAutocomplete({
   label,
   placeholder,
   required = false,
+  initiallySelected = false,
 }: ChampionAutocompleteProps) {
   const [inputValue, setInputValue] = useState(value);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredChampions, setFilteredChampions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [isChampionSelected, setIsChampionSelected] = useState(false);
+  const [isChampionSelected, setIsChampionSelected] = useState(initiallySelected && value !== '');
   const [showError, setShowError] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,11 +56,14 @@ export default function ChampionAutocomplete({
 
   useEffect(() => {
     setInputValue(value);
-    // Only update selection state if value is empty (clearing) or if it's externally set
-    if (value === '') {
+    // If value changes from parent and we're in initially selected mode, update selection state
+    if (initiallySelected && value !== '') {
+      setIsChampionSelected(true);
+      setShowError(false);
+    } else if (value === '') {
       setIsChampionSelected(false);
     }
-  }, [value]);
+  }, [value, initiallySelected]);
 
   useEffect(() => {
     // Close suggestions when clicking outside

@@ -14,6 +14,7 @@ export default function LogGame() {
   const editId = searchParams.get('edit');
   const [selectedRole, setSelectedRole] = useState<Role>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Get current date in PST and format as YYYY-MM-DD
   const getCurrentPSTDate = () => {
@@ -92,6 +93,9 @@ export default function LogGame() {
         .finally(() => {
           setIsLoading(false);
         });
+    } else {
+      // Not in edit mode, just initial load
+      setIsInitialLoad(false);
     }
   }, [editId]);
 
@@ -168,8 +172,8 @@ export default function LogGame() {
     );
   }
 
-  // Role selection screen
-  if (!selectedRole) {
+  // Role selection screen - only show if not loading and no role selected
+  if (!selectedRole && !isLoading) {
     return (
       <div className="min-h-screen p-8">
         <div className="max-w-4xl mx-auto">
@@ -246,6 +250,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_top: value })}
                   placeholder="e.g., Garen"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Jungle"
@@ -253,6 +258,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_jungle: value })}
                   placeholder="e.g., Lee Sin"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -266,6 +272,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_top: value })}
                   placeholder="e.g., Darius"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Enemy Jungle"
@@ -273,6 +280,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
                   placeholder="e.g., Elise"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -294,6 +302,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_jungle: value })}
                   placeholder="e.g., Lee Sin"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Mid"
@@ -301,6 +310,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_mid: value })}
                   placeholder="e.g., Ahri"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Support"
@@ -308,6 +318,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_support: value })}
                   placeholder="e.g., Thresh"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -321,6 +332,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
                   placeholder="e.g., Elise"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Enemy Mid"
@@ -328,6 +340,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_mid: value })}
                   placeholder="e.g., Zed"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Enemy Support"
@@ -335,6 +348,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_support: value })}
                   placeholder="e.g., Lux"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -356,6 +370,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_mid: value })}
                   placeholder="e.g., Ahri"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Jungle"
@@ -363,6 +378,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_jungle: value })}
                   placeholder="e.g., Lee Sin"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -376,6 +392,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_mid: value })}
                   placeholder="e.g., Zed"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Enemy Jungle"
@@ -383,6 +400,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
                   placeholder="e.g., Elise"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -404,6 +422,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_support: value })}
                   placeholder="e.g., Thresh"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="ADC"
@@ -411,6 +430,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_adc: value })}
                   placeholder="e.g., Jinx"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Jungle"
@@ -418,6 +438,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, my_jungle: value })}
                   placeholder="e.g., Lee Sin"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -431,6 +452,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_support: value })}
                   placeholder="e.g., Lux"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Enemy ADC"
@@ -438,6 +460,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_adc: value })}
                   placeholder="e.g., Caitlyn"
                   required
+                  initiallySelected={isEditMode}
                 />
                 <ChampionAutocomplete
                   label="Enemy Jungle"
@@ -445,6 +468,7 @@ export default function LogGame() {
                   onChange={(value) => setFormData({ ...formData, enemy_jungle: value })}
                   placeholder="e.g., Elise"
                   required
+                  initiallySelected={isEditMode}
                 />
               </div>
             </div>
@@ -466,6 +490,7 @@ export default function LogGame() {
                 onChange={(value) => setFormData({ ...formData, my_adc: value })}
                 placeholder="e.g., Jinx"
                 required
+                initiallySelected={isEditMode}
               />
               <ChampionAutocomplete
                 label="Support"
@@ -473,6 +498,7 @@ export default function LogGame() {
                 onChange={(value) => setFormData({ ...formData, my_support: value })}
                 placeholder="e.g., Thresh"
                 required
+                initiallySelected={isEditMode}
               />
             </div>
           </div>
@@ -486,6 +512,7 @@ export default function LogGame() {
                 onChange={(value) => setFormData({ ...formData, enemy_adc: value })}
                 placeholder="e.g., Caitlyn"
                 required
+                initiallySelected={isEditMode}
               />
               <ChampionAutocomplete
                 label="Enemy Support"
@@ -493,6 +520,7 @@ export default function LogGame() {
                 onChange={(value) => setFormData({ ...formData, enemy_support: value })}
                 placeholder="e.g., Lux"
                 required
+                initiallySelected={isEditMode}
               />
             </div>
           </div>
