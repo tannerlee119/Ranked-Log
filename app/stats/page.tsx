@@ -203,6 +203,29 @@ export default function Stats() {
     setCurrentPage(1);
   }, [filter, championFilter, enemyChampionFilter, roleFilter, gameTypeFilter]);
 
+  // Refetch games when window regains focus (e.g., after editing in another tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchGames();
+      // If a game is selected in the modal, refresh its data
+      if (selectedGame) {
+        fetch(`/api/games/${selectedGame.id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.game) {
+              setSelectedGame(data.game);
+              setEditedNotes(data.game.notes || '');
+              setEditedYoutubeUrl(data.game.youtube_url || '');
+            }
+          })
+          .catch(err => console.error('Error refreshing game data:', err));
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [filter, championFilter, enemyChampionFilter, roleFilter, gameTypeFilter, selectedGame]);
+
   const fetchGames = async () => {
     setLoading(true);
     try {

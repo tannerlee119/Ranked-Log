@@ -13,7 +13,7 @@ export default function LogGame() {
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
   const [selectedRole, setSelectedRole] = useState<Role>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(!!editId);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Get current date in PST and format as YYYY-MM-DD
@@ -49,7 +49,7 @@ export default function LogGame() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!editId);
 
   // Fetch game data if in edit mode
   useEffect(() => {
