@@ -501,7 +501,7 @@ export default function Stats() {
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Win Rate</div>
-                <div className="text-3xl font-bold">{stats.winRate}%</div>
+                <div className={`text-3xl font-bold ${stats.winRate > 53 ? 'text-green-400' : stats.winRate >= 47 ? 'text-yellow-400' : 'text-red-400'}`}>{stats.winRate}%</div>
                 <div className="text-sm text-gray-500">
                   {stats.wins}W - {stats.losses}L
                 </div>
