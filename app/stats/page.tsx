@@ -596,7 +596,7 @@ export default function Stats() {
                   </div>
 
                   {/* Champions */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <div className="text-sm text-gray-400 mb-2">My Team</div>
                       <div className="space-y-2">
@@ -623,6 +623,7 @@ export default function Stats() {
                         ))}
                       </div>
                     </div>
+                    <div></div>
                   </div>
 
                   {/* Stats */}
