@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import ChampionAutocomplete from '@/components/ChampionAutocomplete';
@@ -10,7 +10,10 @@ type Role = 'top' | 'jungle' | 'mid' | 'adc' | 'support' | null;
 
 export default function LogGame() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
   const [selectedRole, setSelectedRole] = useState<Role>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Get current date in PST and format as YYYY-MM-DD
   const getCurrentPSTDate = () => {
@@ -45,6 +48,52 @@ export default function LogGame() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch game data if in edit mode
+  useEffect(() => {
+    if (editId) {
+      setIsLoading(true);
+      setIsEditMode(true);
+      fetch(`/api/games/${editId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.game) {
+            const game = data.game;
+            setSelectedRole(game.role as Role);
+            setFormData({
+              my_top: game.my_top || '',
+              my_mid: game.my_mid || '',
+              my_adc: game.my_adc || '',
+              my_support: game.my_support || '',
+              my_jungle: game.my_jungle || '',
+              enemy_top: game.enemy_top || '',
+              enemy_mid: game.enemy_mid || '',
+              enemy_adc: game.enemy_adc || '',
+              enemy_support: game.enemy_support || '',
+              enemy_jungle: game.enemy_jungle || '',
+              kills: game.kills.toString(),
+              deaths: game.deaths.toString(),
+              assists: game.assists.toString(),
+              kill_participation: game.kill_participation.toString(),
+              cs_per_min: game.cs_per_min.toString(),
+              win: game.win.toString(),
+              notes: game.notes || '',
+              youtube_url: game.youtube_url || '',
+              game_date: game.game_date || game.created_at?.split(' ')[0] || getCurrentPSTDate(),
+              game_type: game.game_type || '',
+            });
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching game:', err);
+          setError('Failed to load game data');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [editId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -60,22 +109,27 @@ export default function LogGame() {
     setSuccess(false);
 
     try {
-      const response = await fetch('/api/games', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          role: selectedRole,
-          ...formData,
-          kills: parseInt(formData.kills),
-          deaths: parseInt(formData.deaths),
-          assists: parseInt(formData.assists),
-          kill_participation: parseFloat(formData.kill_participation),
-          cs_per_min: parseFloat(formData.cs_per_min),
-          win: parseInt(formData.win),
-        }),
-      });
+      const gameData = {
+        role: selectedRole,
+        ...formData,
+        kills: parseInt(formData.kills),
+        deaths: parseInt(formData.deaths),
+        assists: parseInt(formData.assists),
+        kill_participation: parseFloat(formData.kill_participation),
+        cs_per_min: parseFloat(formData.cs_per_min),
+        win: parseInt(formData.win),
+      };
+
+      const response = await fetch(
+        isEditMode ? `/api/games/${editId}` : '/api/games',
+        {
+          method: isEditMode ? 'PATCH' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(gameData),
+        }
+      );
 
       console.log('Response status:', response.status, response.ok);
       const data = await response.json();
@@ -85,11 +139,15 @@ export default function LogGame() {
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
-        }, 2000);
-        router.push('/stats');
+          if (isEditMode) {
+            window.close(); // Close the tab if editing
+          } else {
+            router.push('/stats');
+          }
+        }, 1000);
       } else {
         console.error('Save failed:', { status: response.status, data });
-        setError(data.error || 'Failed to save game. Please try again.');
+        setError(data.error || `Failed to ${isEditMode ? 'update' : 'save'} game. Please try again.`);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -99,15 +157,26 @@ export default function LogGame() {
     }
   };
 
+  // Show loading state while fetching game data
+  if (isLoading) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-xl font-semibold mb-2">Loading game data...</div>
+        </div>
+      </div>
+    );
+  }
+
   // Role selection screen
   if (!selectedRole) {
     return (
       <div className="min-h-screen p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Select Your Role</h1>
-            <Link href="/" className="text-blue-400 hover:text-blue-300">
-              ← Back
+            <h1 className="text-3xl font-bold">{isEditMode ? 'Edit Game - Select Role' : 'Select Your Role'}</h1>
+            <Link href={isEditMode ? '#' : '/'} onClick={(e) => { if (isEditMode) { e.preventDefault(); window.close(); }}} className="text-blue-400 hover:text-blue-300">
+              ← {isEditMode ? 'Cancel' : 'Back'}
             </Link>
           </div>
 
@@ -437,6 +506,7 @@ export default function LogGame() {
       <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">
+            {isEditMode ? 'Edit Game - ' : ''}
             {selectedRole === 'top' && 'Top Lane'}
             {selectedRole === 'jungle' && 'Jungle'}
             {selectedRole === 'mid' && 'Mid Lane'}
@@ -444,10 +514,16 @@ export default function LogGame() {
             {selectedRole === 'support' && 'Support'}
           </h1>
           <button
-            onClick={() => setSelectedRole(null)}
+            onClick={() => {
+              if (isEditMode) {
+                window.close();
+              } else {
+                setSelectedRole(null);
+              }
+            }}
             className="text-blue-400 hover:text-blue-300 cursor-pointer"
           >
-            ← Change Role
+            ← {isEditMode ? 'Cancel' : 'Change Role'}
           </button>
         </div>
 
@@ -618,14 +694,14 @@ export default function LogGame() {
             disabled={isSubmitting}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer px-6 py-3 rounded font-semibold transition-colors"
           >
-            {isSubmitting ? 'Saving...' : 'Save Game'}
+            {isSubmitting ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Game' : 'Save Game')}
           </button>
         </form>
 
         {/* Success Toast - Bottom Right */}
         {success && (
           <div className="fixed bottom-6 right-6 p-4 bg-green-600 rounded-lg shadow-lg text-white animate-slide-in">
-            <p className="font-semibold">Game saved successfully</p>
+            <p className="font-semibold">{isEditMode ? 'Game updated successfully' : 'Game saved successfully'}</p>
           </div>
         )}
       </div>

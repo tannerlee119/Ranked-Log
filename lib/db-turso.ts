@@ -189,19 +189,42 @@ export async function getAllGames(): Promise<Game[]> {
   return result.rows as unknown as Game[];
 }
 
-export async function updateGame(id: number, updates: { notes?: string; youtube_url?: string }) {
+export async function updateGame(id: number, updates: Partial<Omit<Game, 'id' | 'created_at'>>) {
   const updateFields: string[] = [];
   const args: any[] = [];
 
-  if (updates.notes !== undefined) {
-    updateFields.push('notes = ?');
-    args.push(updates.notes || null);
-  }
+  // Handle all possible update fields
+  const fieldMapping: { [key: string]: any } = {
+    role: updates.role,
+    my_top: updates.my_top,
+    my_jungle: updates.my_jungle,
+    my_mid: updates.my_mid,
+    my_adc: updates.my_adc,
+    my_support: updates.my_support,
+    enemy_top: updates.enemy_top,
+    enemy_jungle: updates.enemy_jungle,
+    enemy_mid: updates.enemy_mid,
+    enemy_adc: updates.enemy_adc,
+    enemy_support: updates.enemy_support,
+    kills: updates.kills,
+    deaths: updates.deaths,
+    assists: updates.assists,
+    kill_participation: updates.kill_participation,
+    cs_per_min: updates.cs_per_min,
+    win: updates.win,
+    notes: updates.notes,
+    youtube_url: updates.youtube_url,
+    game_type: updates.game_type,
+    game_date: updates.game_date,
+    ai_summary: updates.ai_summary,
+  };
 
-  if (updates.youtube_url !== undefined) {
-    updateFields.push('youtube_url = ?');
-    args.push(updates.youtube_url || null);
-  }
+  Object.entries(fieldMapping).forEach(([field, value]) => {
+    if (value !== undefined) {
+      updateFields.push(`${field} = ?`);
+      args.push(value === '' ? null : value);
+    }
+  });
 
   if (updateFields.length === 0) {
     throw new Error('No fields to update');
