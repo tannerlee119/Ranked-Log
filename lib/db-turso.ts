@@ -90,16 +90,10 @@ export interface Game {
 }
 
 export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
-  // Use provided game_date or get current time in PST/PDT
-  let created_at: string;
-  if (game.game_date) {
-    // If game_date is provided, use it with midnight PST time
-    created_at = `${game.game_date} 00:00:00`;
-  } else {
-    const now = new Date();
-    const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-    created_at = pstTime.toISOString().replace('T', ' ').substring(0, 19);
-  }
+  // Always use current time in PST/PDT for created_at to maintain proper ordering
+  const now = new Date();
+  const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const created_at = pstTime.toISOString().replace('T', ' ').substring(0, 19);
 
   const result = await client.execute({
     sql: `
@@ -107,9 +101,9 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
         role, my_top, my_jungle, my_mid, my_adc, my_support,
         enemy_top, enemy_jungle, enemy_mid, enemy_adc, enemy_support,
         kills, deaths, assists, kill_participation, cs_per_min, win,
-        notes, youtube_url, game_type, ai_summary, created_at
+        notes, youtube_url, game_type, game_date, ai_summary, created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     args: [
       game.role,
@@ -132,6 +126,7 @@ export async function addGame(game: Omit<Game, 'id' | 'created_at'>) {
       game.notes || null,
       game.youtube_url || null,
       game.game_type || 'solo_queue',
+      game.game_date || null,
       game.ai_summary || null,
       created_at
     ]
