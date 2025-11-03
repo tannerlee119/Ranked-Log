@@ -36,6 +36,7 @@ export default function ChampionIcon({ championName, size = 40, className = '' }
       'jarvan iv': 'JarvanIV',
       "kha'zix": 'Khazix',
       'kha zix': 'Khazix',
+      'leblanc': 'Leblanc',
       'lee sin': 'LeeSin',
       'master yi': 'MasterYi',
       'miss fortune': 'MissFortune',

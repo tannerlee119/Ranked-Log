@@ -164,7 +164,7 @@ export async function getGames(limit?: number, championFilter?: string, roleFilt
     query += ' WHERE ' + conditions.join(' AND ');
   }
 
-  query += ' ORDER BY created_at DESC';
+  query += ' ORDER BY created_at DESC, id DESC';
 
   if (limit) {
     query += ' LIMIT ?';
@@ -180,7 +180,7 @@ export async function getGames(limit?: number, championFilter?: string, roleFilt
 }
 
 export async function getAllGames(): Promise<Game[]> {
-  const result = await client.execute('SELECT * FROM games ORDER BY created_at DESC');
+  const result = await client.execute('SELECT * FROM games ORDER BY created_at DESC, id DESC');
   return result.rows as unknown as Game[];
 }
 
