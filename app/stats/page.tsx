@@ -72,7 +72,7 @@ export default function Stats() {
   const getGameTypeInfo = (gameType?: string) => {
     switch (gameType) {
       case 'flex':
-        return { label: 'Flex', color: 'bg-teal-900 text-teal-300' };
+        return { label: 'Flex', color: 'bg-cyan-900 text-cyan-300' };
       case 'scrim':
         return { label: 'Scrim', color: 'bg-yellow-900 text-yellow-300' };
       case 'official_match':
