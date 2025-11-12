@@ -509,10 +509,10 @@ export default function Stats() {
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Avg KDA</div>
                 <div className={`text-3xl font-bold ${getKDAColor(stats.avgKDA)}`}>
-                  {stats.avgKDA.toFixed(2)}
+                  {stats.avgKills} / {stats.avgDeaths} / {stats.avgAssists}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {stats.avgKills} / {stats.avgDeaths} / {stats.avgAssists}
+                  {stats.avgKDA.toFixed(2)}
                 </div>
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
@@ -631,12 +631,12 @@ export default function Stats() {
                     <div className="bg-gray-700 p-3 rounded">
                       <div className="text-sm text-gray-400">KDA</div>
                       <div className="text-xl font-bold">
+                        {selectedGame.kills}/{selectedGame.deaths}/{selectedGame.assists}
+                      </div>
+                      <div className="text-xs text-gray-500">
                         {selectedGame.deaths === 0
                           ? (selectedGame.kills + selectedGame.assists).toFixed(2)
                           : ((selectedGame.kills + selectedGame.assists) / selectedGame.deaths).toFixed(2)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {selectedGame.kills}/{selectedGame.deaths}/{selectedGame.assists}
                       </div>
                     </div>
                     <div className="bg-gray-700 p-3 rounded">
@@ -963,10 +963,10 @@ export default function Stats() {
                               ))}
                             </td>
                             <td className="px-4 py-3">
-                              <div className={`font-semibold ${getKDAColor(parseFloat(kda))}`}>{kda}</div>
-                              <div className="text-xs text-gray-500">
+                              <div className={`font-semibold ${getKDAColor(parseFloat(kda))}`}>
                                 {game.kills}/{game.deaths}/{game.assists}
                               </div>
+                              <div className="text-xs text-gray-500">{kda}</div>
                             </td>
                             <td className={`px-4 py-3 font-semibold ${getKPColor(game.kill_participation)}`}>{game.kill_participation}%</td>
                             <td className={`px-4 py-3 font-semibold ${getCSColor(game.cs_per_min)}`}>{game.cs_per_min}</td>
