@@ -509,10 +509,10 @@ export default function Stats() {
               <div className="bg-gray-800 p-6 rounded-lg">
                 <div className="text-sm text-gray-400 mb-1">Avg KDA</div>
                 <div className={`text-3xl font-bold ${getKDAColor(stats.avgKDA)}`}>
-                  {stats.avgKills} / {stats.avgDeaths} / {stats.avgAssists}
+                  {stats.avgKDA.toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {stats.avgKDA.toFixed(2)}
+                  {stats.avgKills} / {stats.avgDeaths} / {stats.avgAssists}
                 </div>
               </div>
               <div className="bg-gray-800 p-6 rounded-lg">
